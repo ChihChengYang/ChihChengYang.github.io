@@ -6,23 +6,23 @@
 </a>
   <meta charset="utf-8">
   
-  <title>Hello World | </title>
+  <title>Proxy intranet &amp; internet | Jeff Yang</title>
+  <meta name="author" content="Jeff Yang">
   
-  
-  <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in ">
+  <meta name="description" content="c golang docker mysql">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="Hello World"/>
-  <meta property="og:site_name" content="null"/>
+  <meta property="og:title" content="Proxy intranet &amp; internet"/>
+  <meta property="og:site_name" content="Jeff Yang"/>
 
   
     <meta property="og:image" content="undefined"/>
   
 
   <link href="/favicon.png" rel="icon">
-  <link rel="alternate" href="/atom.xml" title="null" type="application/atom+xml">
+  <link rel="alternate" href="/atom.xml" title="Jeff Yang" type="application/atom+xml">
   <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
   <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
   
@@ -32,8 +32,8 @@
 
 <body>
   <header id="header" class="inner"><div class="alignleft">
-  <h1><a href="/">null</a></h1>
-  <h2><a href="/"></a></h2>
+  <h1><a href="/">Jeff Yang</a></h1>
+  <h2><a href="/">Enjoy my coding life</a></h2>
 </div>
 <nav id="main-nav" class="alignright">
   <ul>
@@ -54,32 +54,46 @@
     <header>
       
         <div class="icon"></div>
-        <time datetime="2016-01-14T02:17:40.743Z"><a href="/2016/01/14/hello-world/">2016-01-14</a></time>
+        <time datetime="2016-01-13T10:40:12.000Z"><a href="/2016/01/13/Proxy-intranet-internet/">2016-01-13</a></time>
       
       
   
-    <h1 class="title">Hello World</h1>
+    <h1 class="title">Proxy intranet &amp; internet</h1>
   
 
     </header>
     <div class="entry">
       
-        <p>Welcome to <a href="http://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="http://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="http://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick_Start"><a href="#Quick_Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create_a_new_post"><a href="#Create_a_new_post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run_server"><a href="#Run_server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate_static_files"><a href="#Generate_static_files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy_to_remote_sites"><a href="#Deploy_to_remote_sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+        <h2 id="Install_Fiddler_on_Host__28intranet__26amp_3B_internet_29"><a href="#Install_Fiddler_on_Host__28intranet__26amp_3B_internet_29" class="headerlink" title="Install Fiddler on Host (intranet &amp; internet)"></a>Install <a href="https://www.telerik.com/download/fiddler" title="Fiddler" target="_blank" rel="external">Fiddler</a> on Host (intranet &amp; internet)</h2><p>open Fiddler</p>
+<p>“Tools” -&gt; “Fiddler Options” -&gt; “Connections” -&gt; check “Allow remote computers to connect” and “Fiddler listens on port” keep default 8888 if you would like…</p>
+<p>restart Fiddler</p>
+<h2 id="Linux_Client__28only_intranet_29"><a href="#Linux_Client__28only_intranet_29" class="headerlink" title="Linux Client (only intranet)"></a>Linux Client (only intranet)</h2><p><strong>Setting</strong></p>
+<ul>
+<li>export http_proxy=<a href="http://host’s" target="_blank" rel="external">http://host’s</a> intranet ip:8888</li>
+<li>export https_proxy=<a href="http://host’s" target="_blank" rel="external">http://host’s</a> intranet ip:8888<br>Now you can connect the internet per Host.</li>
+</ul>
+<p><strong>Cancel</strong></p>
+<ul>
+<li>unset http_proxy</li>
+<li>unset https_proxy</li>
+</ul>
 
       
     </div>
     <footer>
       
         
+  
+  <div class="categories">
+    <a href="/categories/Tools/">Tools</a>
+  </div>
+
         
+  
+  <div class="tags">
+    <a href="/tags/tools/">tools</a>
+  </div>
+
         
   <div class="addthis addthis_toolbox addthis_default_style">
     
@@ -120,7 +134,7 @@
   }(document, 'script', 'facebook-jssdk'));
 </script>
 
-<div class="fb-comments" data-href="http://chihchengyang.github.io/2016/01/14/hello-world/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+<div class="fb-comments" data-href="http://chihchengyang.github.io/2016/01/13/Proxy-intranet-internet/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
       
   
 </section>
@@ -135,14 +149,47 @@
 </div>
 
   
+  <div class="widget tag">
+    <h3 class="title">Archives</h3>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
 
   
+<div class="widget tag">
+  <h3 class="title">分類</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/Coding/">Coding</a><small>7</small></li>
+  
+    <li><a href="/categories/Tools/">Tools</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">標籤</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/tags/golang/">golang</a><small>3</small></li>
+  
+    <li><a href="/tags/supervisord/">supervisord</a><small>3</small></li>
+  
+    <li><a href="/tags/tools/">tools</a><small>1</small></li>
+  
+  </ul>
+</div>
+
 </aside>
     <div class="clearfix"></div>
   </div>
   <footer id="footer" class="inner"><div class="alignleft">
   
-  &copy; 2016 null
+  &copy; 2016 Jeff Yang
   
 </div>
 <div class="clearfix"></div></footer>

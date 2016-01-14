@@ -1,0 +1,310 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<a href="https://github.com/ChihChengYang" target="_blank">
+<img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub">
+</a>
+  <meta charset="utf-8">
+  
+  <title>Docker-compose 4 | Jeff Yang</title>
+  <meta name="author" content="Jeff Yang">
+  
+  <meta name="description" content="c golang docker mysql">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Docker-compose 4"/>
+  <meta property="og:site_name" content="Jeff Yang"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Jeff Yang" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">Jeff Yang</a></h1>
+  <h2><a href="/">Enjoy my coding life</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2016-01-08T10:40:12.000Z"><a href="/2016/01/08/Docker-compose-4/">2016-01-08</a></time>
+      
+      
+  
+    <h1 class="title">Docker-compose 4</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>在[docker-compose-3]中完成一個新的image建立</p>
+<pre><code>
+$ docker images 
+REPOSITORY TAG IMAGE ID CREATED VIRTUAL SIZE 
+code_icdc latest 220f9d464171 17 hours ago 304.4 MB
+</code></pre>
+
+<p>可以更改image tag</p>
+<pre><code>
+$ docker tag code_icdc:latest code_icdc:v.01
+$ docker images 
+REPOSITORY TAG IMAGE ID CREATED VIRTUAL SIZE
+code_icdc latest 220f9d464171 17 hours ago 304.4 MB
+code_icdc v.01 220f9d464171 17 hours ago 304.4 MB
+</code></pre>
+
+<p>接著,</p>
+<p>可以利用dockerfile和compose 使這個新建的image code_icdc 複製產生多組同樣功能images…</p>
+<p>準備一個dockerfile</p>
+<p><strong>Dockerfile2</strong></p>
+<pre><code>
+FROM code_icdc:v.01
+MAINTAINER Jeff Yang
+ENV IPMI_GET_IP_S 1
+ENV IPMI_GET_IP_E 10
+</code></pre>
+
+<p>這裡設定一組Environment Variables,來測試複製的image</p>
+<p><strong>docker-image.yml</strong></p>
+<pre><code>
+build:
+ container_name: envTest
+ build: ./
+ dockerfile: Dockerfile2
+ ports: 
+     - 9083:9080
+ volumes:
+     - /home/jeff/code/test_dockerEnv:/home/code/test_dockerEnv
+ restart: always 
+ stdin_open: true
+ tty: true
+</code></pre>
+
+<pre><code>
+$ docker-compose up -d -f docker-image.yml
+</code></pre>
+
+<p>完成image後,檢視現在多了一個新的testdockerenv_build image</p>
+<pre><code>
+$ docker images 
+REPOSITORY TAG IMAGE ID CREATED VIRTUAL SIZE
+testdockerenv_build latest 48e05900d52b 7 seconds ago 304.4 MB
+code_icdc latest 220f9d464171 17 hours ago 304.4 MB
+code_icdc v.01 220f9d464171 17 hours ago 304.4 MB
+</code></pre>
+
+<p>測試程式,簡單的印出環境變數</p>
+<p><strong>goEnv.go</strong><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> ( </span><br><span class="line"> <span class="string">"fmt"</span></span><br><span class="line"> <span class="string">"os"</span></span><br><span class="line"> <span class="string">"bufio"</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">func</span> main() &#123;</span><br><span class="line"> fmt.Println(<span class="string">"IPMI_GET_IP_S:"</span>, os.Getenv(<span class="string">"IPMI_GET_IP_S"</span>))</span><br><span class="line"> fmt.Println(<span class="string">"IPMI_GET_IP_E:"</span>, os.Getenv(<span class="string">"IPMI_GET_IP_E"</span>))</span><br><span class="line"> <span class="comment">//getchar()</span></span><br><span class="line"> reader := bufio.NewReader(os.Stdin)</span><br><span class="line"> reader.ReadString(<span class="string">'\n'</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>接著,進入container</p>
+<pre><code>
+$ docker exec -it envTest bash
+</code></pre>
+
+<p>查看supervisord是否有啟動</p>
+<pre><code>
+[root@a6d077cfdd7c home]# supervisorctl status
+ipmi RUNNING pid 9, uptime 0:00:42
+ipmi_monitor RUNNING pid 22, uptime 0:00:36
+ipmicdc:0 STOPPED Not started
+ipmicdc:1 STOPPED Not started
+ipmicdc:2 STOPPED Not started
+ipmicdc:3 STOPPED Not started
+ipmicdc:4 STOPPED Not started
+</code></pre>
+
+<p>執行程式,將印出環境變數</p>
+<pre><code>
+[root@a6d077cfdd7c home]# cd ./code/test_dockerEnv/
+[root@a6d077cfdd7c test_dockerEnv]# ./goEnv
+IPMI_GET_IP_S: 1
+IPMI_GET_IP_E: 10
+[root@a6d077cfdd7c test_dockerEnv]# echo $IPMI_GET_IP_E
+10
+</code></pre>
+
+<p>若不需要產生新image,</p>
+<p>也可以直接執行docker run,利用現有image產生container</p>
+<pre><code>
+$ docker run -e "IPMI_GET_IP_S=1" -e "IPMI_GET_IP_E=10" -itd --name envTest --restart=always -p 9083:9080 -v /home/jeff/code/test_dockerEnv:/home/code/test_dockerEnv code_icdc:v.01 
+90cd3ba79bc4a9b705c823e0ba488e04ad7efc07c7181ef6b28cd14e5dc1d31c
+</code></pre>
+<pre><code>
+$ docker images
+REPOSITORY TAG IMAGE ID CREATED VIRTUAL SIZE
+code_icdc latest 220f9d464171 18 hours ago 304.4 MB
+code_icdc v.01 220f9d464171 18 hours ago 304.4 MB
+docker.io/centos centos7 60e65a8e4030 13 days ago 196.6 MB
+docker.io/centos latest 60e65a8e4030 13 days ago 196.6 MB
+</code></pre>
+
+<p>相同步驟確認環境變數</p>
+<pre><code>
+$ docker ps
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+90cd3ba79bc4 code_icdc:v.01 "/bin/sh -c $MAJOR_PA" 17 seconds ago Up 16 seconds 0.0.0.0:9083->9080/tcp envTest
+
+$ docker exec -it envTest bash
+[root@90cd3ba79bc4 /]# cd /home/code/test_dockerEnv/
+[root@90cd3ba79bc4 test_dockerEnv]# ./goEnv
+IPMI_GET_IP_S: 1
+IPMI_GET_IP_E: 10
+</code></pre>
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/Coding/">Coding</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/docker/">docker</a>, <a href="/tags/supervisord/">supervisord</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">留言</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://chihchengyang.github.io/2016/01/08/Docker-compose-4/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜尋">
+    <input type="hidden" name="q" value="site:chihchengyang.github.io">
+  </form>
+</div>
+
+  
+  <div class="widget tag">
+    <h3 class="title">Archives</h3>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分類</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/Coding/">Coding</a><small>7</small></li>
+  
+    <li><a href="/categories/Tools/">Tools</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">標籤</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/tags/golang/">golang</a><small>3</small></li>
+  
+    <li><a href="/tags/supervisord/">supervisord</a><small>3</small></li>
+  
+    <li><a href="/tags/tools/">tools</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Jeff Yang
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

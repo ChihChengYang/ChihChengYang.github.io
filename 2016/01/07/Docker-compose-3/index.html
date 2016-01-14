@@ -1,0 +1,294 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<a href="https://github.com/ChihChengYang" target="_blank">
+<img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub">
+</a>
+  <meta charset="utf-8">
+  
+  <title>Docker-compose 3 | Jeff Yang</title>
+  <meta name="author" content="Jeff Yang">
+  
+  <meta name="description" content="c golang docker mysql">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Docker-compose 3"/>
+  <meta property="og:site_name" content="Jeff Yang"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Jeff Yang" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">Jeff Yang</a></h1>
+  <h2><a href="/">Enjoy my coding life</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2016-01-07T10:40:12.000Z"><a href="/2016/01/07/Docker-compose-3/">2016-01-07</a></time>
+      
+      
+  
+    <h1 class="title">Docker-compose 3</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>接著利用compose結合dockerfile,並在dockerfile中安裝和啟動supervisord</p>
+<p><strong>Dockerfile</strong></p>
+<pre><code>
+FROM centos:centos7
+MAINTAINER Jeff Yang
+#RUN yum update -y
+RUN yum -y install openssl-devel
+ENV MAJOR_PATH /home/apps/IPMI/
+ENV INSTALL_PATH /home/install/ 
+ENV CONFIG_PATH /home/apps/DCMS/config/
+RUN mkdir -p $MAJOR_PATH 
+RUN mkdir -p $CONFIG_PATH
+RUN mkdir -p $INSTALL_PATH
+### Install supervisord manually
+#RUN yum -y install python-setuptools python-pip
+#RUN easy_install supervisor
+COPY setuptools-19.2.tar.gz $INSTALL_PATH 
+COPY meld3-0.6.5.tar.gz $INSTALL_PATH 
+COPY elementtree-1.2-20040618.tar.gz $INSTALL_PATH 
+COPY supervisor-3.1.3.tar.gz $INSTALL_PATH  
+COPY ipmiutil-2.9.6-1_rhel6.x86_64.rpm $INSTALL_PATH  
+RUN chmod 700 $INSTALL_PATH/setuptools-19.2.tar.gz && \
+tar -zxvf $INSTALL_PATH/setuptools-19.2.tar.gz -C $INSTALL_PATH && \
+cd $INSTALL_PATH/setuptools-19.2/ && \ 
+python setup.py install
+RUN chmod 700 $INSTALL_PATH/meld3-0.6.5.tar.gz && \
+tar -zxvf $INSTALL_PATH/meld3-0.6.5.tar.gz -C $INSTALL_PATH && \
+cd $INSTALL_PATH/meld3-0.6.5/ && \ 
+python setup.py install
+RUN chmod 700 $INSTALL_PATH/elementtree-1.2-20040618.tar.gz && \
+tar -zxvf $INSTALL_PATH/elementtree-1.2-20040618.tar.gz -C $INSTALL_PATH && \
+cd $INSTALL_PATH/elementtree-1.2-20040618/ && \ 
+python setup.py install
+RUN chmod 700 $INSTALL_PATH/supervisor-3.1.3.tar.gz && \
+tar -zxvf $INSTALL_PATH/supervisor-3.1.3.tar.gz -C $INSTALL_PATH && \
+cd $INSTALL_PATH/supervisor-3.1.3/ && \ 
+python setup.py install
+
+RUN rpm -i $INSTALL_PATH/ipmiutil-2.9.6-1_rhel6.x86_64.rpm
+###
+COPY ipmicdc $MAJOR_PATH
+RUN chmod 700 $MAJOR_PATH/ipmicdc
+COPY ./libs/libipmi.so /usr/lib/
+RUN ldconfig
+COPY supervisord.conf $MAJOR_PATH
+COPY config.ini $MAJOR_PATH
+COPY start.sh $MAJOR_PATH
+COPY config.json $CONFIG_PATH
+RUN ln -s $MAJOR_PATH/<font color="red">supervisord.conf</font> /etc/supervisord.conf
+
+#EXPOSE 9080 9081
+CMD $MAJOR_PATH/<font color="red">start.sh</font> 
+</code></pre>
+
+<p><strong>docker-compose.yml</strong></p>
+<pre><code>
+icdc:
+ container_name: jeff
+ build: ./
+ dockerfile: <font color="red">Dockerfile</font> 
+ ports: 
+ - 9080:9080
+ volumes:
+ - /home/jeff/code/:/home/code
+ restart: always 
+ stdin_open: true
+ tty: true
+</code></pre>
+
+<p><strong>supervisord.conf</strong></p>
+<pre><code>
+...
+[program:ipmicdc]
+command=/home/apps/IPMI/ipmicdc %(process_num)d 
+process_name = %(process_num)d
+numprocs=5 
+autostart=no 
+autorestart=yes
+;stdout_logfile=/home/apps/IPMI/hh.log
+[program:ipmi]
+command=/home/apps/IPMI/ipmicdc 
+autostart=yes
+autorestart=yes
+;stdout_logfile=/home/apps/IPMI/m.log
+...
+</code></pre>
+
+<p><strong>start.sh</strong></p>
+<pre><code>
+#!/bin/sh
+/usr/bin/supervisord -c /home/apps/IPMI/supervisord.conf -n
+</code></pre>
+
+<p>在docker-compose.yml所在目錄下執行</p>
+<p><pre><code><br> docker-compose up -d<br></code></pre><br>順利的話,supervisord中所設定的程式將會啟動執行</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/Coding/">Coding</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/docker/">docker</a>, <a href="/tags/supervisord/">supervisord</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">留言</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://chihchengyang.github.io/2016/01/07/Docker-compose-3/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜尋">
+    <input type="hidden" name="q" value="site:chihchengyang.github.io">
+  </form>
+</div>
+
+  
+  <div class="widget tag">
+    <h3 class="title">Archives</h3>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分類</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/Coding/">Coding</a><small>7</small></li>
+  
+    <li><a href="/categories/Tools/">Tools</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">標籤</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/tags/golang/">golang</a><small>3</small></li>
+  
+    <li><a href="/tags/supervisord/">supervisord</a><small>3</small></li>
+  
+    <li><a href="/tags/tools/">tools</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Jeff Yang
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

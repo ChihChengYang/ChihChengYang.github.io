@@ -1,0 +1,221 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<a href="https://github.com/ChihChengYang" target="_blank">
+<img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub">
+</a>
+  <meta charset="utf-8">
+  
+  <title>Docker 網路連線 | Jeff Yang</title>
+  <meta name="author" content="Jeff Yang">
+  
+  <meta name="description" content="c golang docker mysql">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Docker 網路連線"/>
+  <meta property="og:site_name" content="Jeff Yang"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Jeff Yang" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">Jeff Yang</a></h1>
+  <h2><a href="/">Enjoy my coding life</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2015-12-30T10:40:12.000Z"><a href="/2015/12/30/Docker-network/">2015-12-30</a></time>
+      
+      
+  
+    <h1 class="title">Docker 網路連線</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h2 id="CentOS7__u4E0B_u5B89_u88DD_docker"><a href="#CentOS7__u4E0B_u5B89_u88DD_docker" class="headerlink" title="CentOS7 下安裝 docker"></a>CentOS7 下安裝 docker</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sudo</span> yum install docker</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sudo</span> service docker start</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sudo</span> chkconfig docker on</span><br></pre></td></tr></table></figure>
+<h2 id="u5B89_u88DD_u5B8C_u6210_u5F8C_uFF0C_u57F7_u884C_u4EE5_u4E0B_u6307_u4EE4"><a href="#u5B89_u88DD_u5B8C_u6210_u5F8C_uFF0C_u57F7_u884C_u4EE5_u4E0B_u6307_u4EE4" class="headerlink" title="安裝完成後，執行以下指令"></a>安裝完成後，執行以下指令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$docker</span> run -it --name jeff -p <span class="number">9080</span>:<span class="number">9080</span> -v /home/jeff/code/:/home/code centos /bin/bash</span><br></pre></td></tr></table></figure>
+<p>-v /home/jeff/code/:/home/code 掛載Host主機下目錄</p>
+<h2 id="u4E00_u4E9B_u554F_u984C"><a href="#u4E00_u4E9B_u554F_u984C" class="headerlink" title="一些問題"></a>一些問題</h2><ul>
+<li><p>當進入container掛載目錄後，執行ls發生錯誤<br><font color="red"><br>[root@a52a9c808ba5 code]# ls: cannot open directory .: Permission denied<br></font><br>解法:<br>在Host掛載目錄下執行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$chcon</span> -Rt svirt_sandbox_file_t ./code/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>容器要想存取外部網路，需要host支援forward</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sysctl</span> net.ipv4.ip_forward</span><br><span class="line">net.ipv4.ip_forward = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>  如果為 0，說明沒有開啟轉發，則需要手動打開。</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sysctl</span> -w net.ipv4.ip_forward=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$service</span> docker restart</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>進入container後ping外部ip確認是否成功連線</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@a52a9c808ba5 /]<span class="comment"># ping 10.62.8.175</span></span><br><span class="line">PING <span class="number">10.62</span>.<span class="number">8.175</span> (<span class="number">10.62</span>.<span class="number">8.175</span>) <span class="number">56</span>(<span class="number">84</span>) bytes of data.</span><br><span class="line"><span class="number">64</span> bytes from <span class="number">10.62</span>.<span class="number">8.175</span>: icmp_seq=<span class="number">7</span> ttl=<span class="number">127</span> time=<span class="number">1.01</span> ms</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="u53C3_u8003_3A"><a href="#u53C3_u8003_3A" class="headerlink" title="參考:"></a>參考:</h2><p>[1] <a href="https://github.com/philipz/docker_practice" target="_blank" rel="external">https://github.com/philipz/docker_practice</a></p>
+<p>[2] <a href="http://blog.scottlowe.org/2013/09/04/introducing-linux-network-namespaces/" target="_blank" rel="external">http://blog.scottlowe.org/2013/09/04/introducing-linux-network-namespaces/</a></p>
+<p>[3] <a href="http://www.infoq.com/cn/articles/docker-network-and-pipework-open-source-explanation-practice#rd" target="_blank" rel="external">http://www.infoq.com/cn/articles/docker-network-and-pipework-open-source-explanation-practice#rd</a></p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/Coding/">Coding</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/docker/">docker</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">留言</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://chihchengyang.github.io/2015/12/30/Docker-network/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜尋">
+    <input type="hidden" name="q" value="site:chihchengyang.github.io">
+  </form>
+</div>
+
+  
+  <div class="widget tag">
+    <h3 class="title">Archives</h3>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分類</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/Coding/">Coding</a><small>7</small></li>
+  
+    <li><a href="/categories/Tools/">Tools</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">標籤</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/tags/golang/">golang</a><small>3</small></li>
+  
+    <li><a href="/tags/supervisord/">supervisord</a><small>3</small></li>
+  
+    <li><a href="/tags/tools/">tools</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Jeff Yang
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
