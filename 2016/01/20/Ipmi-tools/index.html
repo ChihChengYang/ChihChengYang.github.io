@@ -1,0 +1,231 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<a href="https://github.com/ChihChengYang" target="_blank">
+<img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub">
+</a>
+  <meta charset="utf-8">
+  
+  <title>IPMI Tools | Jeff Yang</title>
+  <meta name="author" content="Jeff Yang">
+  
+  <meta name="description" content="c golang docker mysql">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="IPMI Tools"/>
+  <meta property="og:site_name" content="Jeff Yang"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Jeff Yang" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">Jeff Yang</a></h1>
+  <h2><a href="/">Enjoy my coding life</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2016-01-20T10:40:12.000Z"><a href="/2016/01/20/Ipmi-tools/">2016-01-20</a></time>
+      
+      
+  
+    <h1 class="title">IPMI Tools</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h2 id="There_are_4_notable_ipmi_sw_tools_and_here_is_the_compare_ipmi_tools_compare"><a href="#There_are_4_notable_ipmi_sw_tools_and_here_is_the_compare_ipmi_tools_compare" class="headerlink" title="There are 4 notable ipmi sw tools and here is the compare ipmi tools compare"></a>There are 4 notable ipmi sw tools and here is the compare <a href="http://ipmiutil.sourceforge.net/docs/ipmisw-compare.htm" title="ipmi sw compare" target="_blank" rel="external">ipmi tools compare</a></h2><p><strong><em>Usage EX:</em></strong><br>Get sensors</p>
+<ul>
+<li><p>ipmi-sensors -h 10.250.210.139 -u admin -p password -D LAN_2_0</p>
+</li>
+<li><p>ipmitool -I lanplus -U admin -P password -H 10.250.210.13 sdr list</p>
+</li>
+<li><p>ipmiutil sensor -c -F lan2 -N 10.250.210.13 -U admin -R password</p>
+</li>
+</ul>
+<h2 id="How_to_build_the_reusable_library_of_ipmitool_u2026"><a href="#How_to_build_the_reusable_library_of_ipmitool_u2026" class="headerlink" title="How to build the reusable library of ipmitool…"></a>How to build the reusable library of ipmitool…</h2><ol>
+<li><p>doenload <a href="http://sourceforge.net/projects/ipmitool/" title="ipmitool 1.8.15" target="_blank" rel="external">ipmitool 1.8.15</a> </p>
+</li>
+<li><p>yum install openssl openssl-devel (For “lanplus : yes”)</p>
+</li>
+<li><p>cd ipmitool 1.8.15 &amp; CC=gcc4 CFLAGS=-m32 LDFLAGS=-static &amp; ./configure</p>
+</li>
+<li><p>(make clean) &amp; make &amp; make install </p>
+</li>
+<li><p>cd src</p>
+</li>
+<li><p>/bin/sh ../libtool –silent –tag=CC –mode=link gcc -fno-strict-aliasing -Wreturn-type -all-static -o ipmitool.a ipmishell.o ../lib/libipmitool.la plugins/libintf.la</p>
+</li>
+<li><p>gcc -g  -lm -lcrypto ipmitool.c -fPIC -shared -o libicdcipmi.so -L. ipmitool.a -I./ipmitool-1.8.15/include/</p>
+</li>
+</ol>
+<p><strong>Build own libicdcipmi.so using ipmitool.a</strong></p>
+<p><strong>ipmitool.c</strong><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="typename">int</span> getSensorsIPMI(char *<span class="keyword">interface</span>, char *usr, char *pws, char *ip, char *retry, char *getJsonString)&#123;</span><br><span class="line">	<span class="typename">int</span> rc,i; </span><br><span class="line">	<span class="typename">int</span> argc = <span class="number">13</span>; </span><br><span class="line">	char** argv;</span><br><span class="line">	argv = malloc(argc * sizeof(char*));      </span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; argc; i += <span class="number">1</span>)</span><br><span class="line">    	argv[i] = malloc(<span class="number">32</span> * sizeof(char));  </span><br><span class="line"></span><br><span class="line">	sprintf(argv[<span class="number">0</span>],<span class="string">"%s"</span>, <span class="string">"m.out"</span>);</span><br><span class="line">	sprintf(argv[<span class="number">1</span>],<span class="string">"%s"</span>, <span class="string">"-I"</span>);</span><br><span class="line">	sprintf(argv[<span class="number">2</span>],<span class="string">"%s"</span>, <span class="keyword">interface</span>);</span><br><span class="line">	sprintf(argv[<span class="number">3</span>],<span class="string">"%s"</span>, <span class="string">"-U"</span>);</span><br><span class="line">	sprintf(argv[<span class="number">4</span>],<span class="string">"%s"</span>, usr);</span><br><span class="line">	sprintf(argv[<span class="number">5</span>],<span class="string">"%s"</span>, <span class="string">"-P"</span>);</span><br><span class="line">	sprintf(argv[<span class="number">6</span>],<span class="string">"%s"</span>, pws);</span><br><span class="line">	sprintf(argv[<span class="number">7</span>],<span class="string">"%s"</span>, <span class="string">"-H"</span>);</span><br><span class="line">	sprintf(argv[<span class="number">8</span>],<span class="string">"%s"</span>, ip);</span><br><span class="line">	sprintf(argv[<span class="number">9</span>],<span class="string">"%s"</span>, <span class="string">"-R"</span>);</span><br><span class="line">	sprintf(argv[<span class="number">10</span>],<span class="string">"%s"</span>, retry);</span><br><span class="line">	sprintf(argv[<span class="number">11</span>],<span class="string">"%s"</span>, <span class="string">"sensor"</span>);</span><br><span class="line">	sprintf(argv[<span class="number">12</span>],<span class="string">"%s"</span>, <span class="string">"icdc"</span>); <span class="comment">// list </span></span><br><span class="line"> </span><br><span class="line">	<span class="keyword">struct</span> ipmi_intf_icdc iii;</span><br><span class="line">	memset(&amp;iii, <span class="number">0</span>, sizeof(<span class="keyword">struct</span> ipmi_intf_icdc)); </span><br><span class="line">	ipmi_icdc_mian(argc, argv, ipmitool_cmd_list, NULL, &amp;iii);</span><br><span class="line">  </span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; argc; i += <span class="number">1</span>)</span><br><span class="line">    	free(argv[i]);</span><br><span class="line">	free(argv);</span><br><span class="line">  	</span><br><span class="line"> 	<span class="keyword">return</span> rc;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
+<p>8.cp libicdcipmi.so /usr/lib &amp; ldconfig</p>
+<p>9.go build icdc_ipmi.go  </p>
+<p><strong>icdc_ipmi.go</strong><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span><br><span class="line">#cgo LDFLAGS: -L/usr/lib/ -licdcipmi</span><br><span class="line">#cgo CFLAGS: -I./</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include "ipmitool.h"</span><br><span class="line">*/</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">"C"</span></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"os"</span></span><br><span class="line">	<span class="string">"fmt"</span>  </span><br><span class="line">	<span class="string">"runtime"</span></span><br><span class="line">	<span class="string">"unsafe"</span> </span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">func</span> getSensorsIPMI() &#123;   </span><br><span class="line">	drvtyp := C.CString(<span class="string">"lanplus"</span>)</span><br><span class="line">	nod := C.CString(<span class="string">"10.250.210.13"</span>)   </span><br><span class="line">	usr := C.CString(<span class="string">"ad"</span>)  </span><br><span class="line">	psw := C.CString( <span class="string">"pd"</span>) </span><br><span class="line">	retry := C.CString( <span class="string">"1"</span>)	</span><br><span class="line">	<span class="keyword">var</span> getJson [<span class="number">8192</span>]<span class="typename">byte</span></span><br><span class="line">	ret :=  C.getSensorsIPMI( drvtyp, usr, psw, nod, retry, (*C.char)(unsafe.Pointer(&amp;getJson[<span class="number">0</span>])))	</span><br><span class="line">	C.free(unsafe.Pointer(drvtyp))</span><br><span class="line">	C.free(unsafe.Pointer(nod))</span><br><span class="line">	C.free(unsafe.Pointer(usr))</span><br><span class="line">	C.free(unsafe.Pointer(psw))</span><br><span class="line">	C.free(unsafe.Pointer(retry))	</span><br><span class="line">	<span class="keyword">if</span> ret == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">var</span> jsonString <span class="typename">string</span></span><br><span class="line">		jsonString = C.GoString((*C.char)(unsafe.Pointer(&amp;getJson[<span class="number">0</span>])))</span><br><span class="line">		fmt.Println(<span class="string">"getSensorsIPMI =&gt; "</span>,jsonString)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/Tools/">Tools</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/ipmi/">ipmi</a>, <a href="/tags/tools/">tools</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">留言</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://chihchengyang.github.io/2016/01/20/Ipmi-tools/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜尋">
+    <input type="hidden" name="q" value="site:chihchengyang.github.io">
+  </form>
+</div>
+
+  
+  <div class="widget tag">
+    <h3 class="title">Archives</h3>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分類</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/Coding/">Coding</a><small>7</small></li>
+  
+    <li><a href="/categories/Tools/">Tools</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">標籤</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/tags/golang/">golang</a><small>3</small></li>
+  
+    <li><a href="/tags/ipmi/">ipmi</a><small>1</small></li>
+  
+    <li><a href="/tags/supervisord/">supervisord</a><small>3</small></li>
+  
+    <li><a href="/tags/tools/">tools</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Jeff Yang
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
