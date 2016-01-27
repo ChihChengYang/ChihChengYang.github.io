@@ -55,6 +55,46 @@
     <header>
       
         <div class="icon"></div>
+        <time datetime="2016-01-27T10:00:00.000Z"><a href="/2016/01/27/Simple-web-vnc/">2016-01-27</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2016/01/27/Simple-web-vnc/">Simple web vnc</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h2 id="Try_to_create_a_low_latency_web_vnc__28no_concern_network_conditions_29"><a href="#Try_to_create_a_low_latency_web_vnc__28no_concern_network_conditions_29" class="headerlink" title="Try to create a low latency web vnc (no concern network conditions)."></a>Try to create a low latency web vnc (no concern network conditions).</h2><p>It captures the screen or a application window based on Linux (X11) , encodes that into H.264 (FFmpeg libs),<br>stream it over <a href="https://github.com/gorilla/websocket" title="WebSocket" target="_blank" rel="external">WebSocket</a> to the browser where it is finally decoded in a <a href="https://github.com/oneam/h264bsd" title="H.264 JavaScript" target="_blank" rel="external">H.264 JavaScript</a> software-based library.</p>
+<p>Browser sends control commands (mouse commands) to server over WebSocket as well.</p>
+<p><strong>Source Code</strong><br><a href="https://github.com/ChihChengYang/simple-web-vnc" title="Simple-web-vnc" target="_blank" rel="external">Simple-web-vnc</a></p>
+<p>Server — H.264 —&gt; Browser<br>Server &lt;— Commands — Browser</p>
+<p>Encoder: H.264 (FFmpeg libs)<br>Protocol: Websocket (Go lib)<br>Decoder: H.264 (JavaScript H.264)   </p>
+<p>Build on Ubuntu 14.04 64bit</p>
+<p><strong>Demo</strong></p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/_yEwPDnpnQE" frameborder="0" allowfullscreen></iframe>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
         <time datetime="2016-01-20T10:40:12.000Z"><a href="/2016/01/20/Ipmi-tools/">2016-01-20</a></time>
       
       
@@ -771,7 +811,7 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
     <aside id="sidebar" class="alignright">
   <div class="search">
   <form action="//google.com/search" method="get" accept-charset="utf-8">
-    <input type="search" name="q" results="0" placeholder="搜尋">
+    <input type="search" name="q" results="0" placeholder="Buscar">
     <input type="hidden" name="q" value="site:chihchengyang.github.io">
   </form>
 </div>
@@ -779,16 +819,16 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
   
   <div class="widget tag">
     <h3 class="title">Archives</h3>
-    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
   </div>
 
 
   
 <div class="widget tag">
-  <h3 class="title">分類</h3>
+  <h3 class="title">Categorías</h3>
   <ul class="entry">
   
-    <li><a href="/categories/Coding/">Coding</a><small>7</small></li>
+    <li><a href="/categories/Coding/">Coding</a><small>8</small></li>
   
     <li><a href="/categories/Tools/">Tools</a><small>2</small></li>
   
@@ -798,14 +838,18 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
 
   
 <div class="widget tag">
-  <h3 class="title">標籤</h3>
+  <h3 class="title">Etiquetas</h3>
   <ul class="entry">
+  
+    <li><a href="/tags/c-c/">c/c++</a><small>1</small></li>
   
     <li><a href="/tags/docker/">docker</a><small>6</small></li>
   
-    <li><a href="/tags/golang/">golang</a><small>3</small></li>
+    <li><a href="/tags/golang/">golang</a><small>4</small></li>
   
     <li><a href="/tags/ipmi/">ipmi</a><small>1</small></li>
+  
+    <li><a href="/tags/javascript/">javascript</a><small>1</small></li>
   
     <li><a href="/tags/supervisord/">supervisord</a><small>3</small></li>
   
