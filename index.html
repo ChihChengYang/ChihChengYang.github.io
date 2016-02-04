@@ -55,6 +55,64 @@
     <header>
       
         <div class="icon"></div>
+        <time datetime="2016-02-04T10:40:12.000Z"><a href="/2016/02/04/Virtual-android-phones/">2016-02-04</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2016/02/04/Virtual-android-phones/">Virtual android phones</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h2 id="Try_to_create_virtual_android_phones_on_server"><a href="#Try_to_create_virtual_android_phones_on_server" class="headerlink" title="Try to create virtual android phones on server."></a>Try to create virtual android phones on server.</h2><p>Ref.: <a href="http://android-x86.googlecode.com/files/Wowmom-CR2.pdf" title="Virtual Smartphone over IP" target="_blank" rel="external">Virtual Smartphone over IP</a></p>
+<p><em>Some android emulators:</em></p>
+<ol>
+<li>Android-x86<br><a href="http://www.android-x86.org/" target="_blank" rel="external">http://www.android-x86.org/</a></li>
+<li>ARChon Custom Runtime<br><a href="http://archon-runtime.github.io/" target="_blank" rel="external">http://archon-runtime.github.io/</a></li>
+<li>Official Android SDK Emulator w/HAXM<br><a href="http://developer.android.com/sdk/index.html" target="_blank" rel="external">http://developer.android.com/sdk/index.html</a></li>
+<li>Android on Intel Architecture<br><a href="https://01.org/android-ia" target="_blank" rel="external">https://01.org/android-ia</a></li>
+<li>ARC Welder<br><a href="https://developer.chrome.com/apps/getstarted_arc" target="_blank" rel="external">https://developer.chrome.com/apps/getstarted_arc</a></li>
+</ol>
+<h2 id="Remote_control"><a href="#Remote_control" class="headerlink" title="Remote control"></a>Remote control</h2><p>Linux Ubuntu 14.04 64bit</p>
+<p><em>Prerequisite:</em> </p>
+<ol>
+<li>Android-x86</li>
+<li>VirtualBox</li>
+<li>Python…</li>
+</ol>
+<p><strong>Steps</strong></p>
+<ol>
+<li>download <a href="http://www.android-x86.org/download" title="android-x86-5.1-rc1.iso" target="_blank" rel="external">android-x86-5.1-rc1.iso</a></li>
+<li>dkpg -i virtualbox-5.0_5.0.12-104815-Ubuntu-trusty_amd64.deb<br>Need to enable Intel VT-X or AMD-V in your bios configuration</li>
+<li>install android-x86 in virtualbox<br>In android-x86 press Alt+F1 entry console mode<br>netcfg<br>check ip<br>ifconfig eth0 xx.xx.xx.xx netmask 255.255.255.0<br>Alt+F7 GUI mode</li>
+</ol>
+<img src="/2016/02/04/Virtual-android-phones/Screenshot1.png" alt="finish install" title="finish install">
+<ol>
+<li>cotrol virtualbox on console<br><em>Start VM</em><br>if run as root:<br>sudo -u jeff -H VBoxManage startvm Android<br>background mode<br>sudo -u jeff -H VBoxHeadless -s Android -v on -e “TCP/Ports=33899”</li>
+</ol>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
         <time datetime="2016-01-27T10:00:00.000Z"><a href="/2016/01/27/Simple-web-vnc/">2016-01-27</a></time>
       
       
@@ -68,7 +126,7 @@
         <h2 id="Try_to_create_a_low_latency_web_vnc__28no_concern_network_conditions_29"><a href="#Try_to_create_a_low_latency_web_vnc__28no_concern_network_conditions_29" class="headerlink" title="Try to create a low latency web vnc (no concern network conditions)."></a>Try to create a low latency web vnc (no concern network conditions).</h2><p>It captures the screen or a application window based on Linux (X11) , encodes that into H.264 (FFmpeg libs),<br>stream it over <a href="https://github.com/gorilla/websocket" title="WebSocket" target="_blank" rel="external">WebSocket</a> to the browser where it is finally decoded in a <a href="https://github.com/oneam/h264bsd" title="H.264 JavaScript" target="_blank" rel="external">H.264 JavaScript</a> software-based library.</p>
 <p>Browser sends control commands (mouse commands) to server over WebSocket as well.</p>
 <p><strong>Source Code</strong><br><a href="https://github.com/ChihChengYang/simple-web-vnc" title="Simple-web-vnc" target="_blank" rel="external">Simple-web-vnc</a></p>
-<p>Server — H.264 —&gt; Browser<br>Server &lt;— Commands — Browser</p>
+<p>Server — H.264 —&gt; Browser (<a href="http://serverIP:8888" target="_blank" rel="external">http://serverIP:8888</a>)<br>Server &lt;— Commands — Browser</p>
 <p>Encoder: H.264 (FFmpeg libs)<br>Protocol: Websocket (Go lib)<br>Decoder: H.264 (JavaScript H.264)   </p>
 <p>Build on Ubuntu 14.04 64bit</p>
 <p><strong>Demo</strong></p>
@@ -770,48 +828,18 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
 
 
 
-  <article class="post">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time datetime="2015-12-29T10:40:12.000Z"><a href="/2015/12/29/Connect-to-mysql-from-golang/">2015-12-29</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2015/12/29/Connect-to-mysql-from-golang/">Connect to mysql from golang</a></h1>
-  
-
-    </header>
-    <div class="entry">
-      
-        <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">  <span class="string">"database/sql"</span></span><br><span class="line">  <span class="string">"fmt"</span></span><br><span class="line">  <span class="string">"runtime"</span></span><br><span class="line">  _ <span class="string">"github.com/go-sql-driver/mysql"</span></span><br><span class="line">  <span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">type</span> DBStruct <span class="keyword">struct</span> &#123;</span><br><span class="line">  db *sql.DB</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">var</span> dbString <span class="typename">string</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">func</span> (dbs *DBStruct) dbOpen() (err error) &#123; </span><br><span class="line">  dbs.db, err = sql.Open(<span class="string">"mysql"</span>, dbString)</span><br><span class="line">  <span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">"ERROR dbOpen"</span>)</span><br><span class="line">  &#125; </span><br><span class="line">  <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">func</span> (dbs *DBStruct) dbClose() (err error) &#123; </span><br><span class="line">  err = dbs.db.Ping()</span><br><span class="line">  <span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line">    fmt.Println(err)</span><br><span class="line">    <span class="keyword">return</span> err</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">defer</span> dbs.db.Close() </span><br><span class="line">  <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">func</span> (dbs *DBStruct) dbCreate(tableName <span class="typename">string</span>) (err error) &#123; </span><br><span class="line">  err = <span class="constant">nil</span> </span><br><span class="line">  err = dbs.db.Ping()</span><br><span class="line">  <span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line">    fmt.Println(err)</span><br><span class="line">    <span class="keyword">return</span> err</span><br><span class="line">  &#125; </span><br><span class="line">  c0 := fmt.Sprintf(<span class="string">"CREATE TABLE IF NOT EXISTS %s"</span>, tableName)</span><br><span class="line">  c1 := fmt.Sprintf(<span class="string">"%s ( id INT AUTO_INCREMENT PRIMARY KEY, "</span>, c0)</span><br><span class="line">  c2 := fmt.Sprintf(<span class="string">"%s LastUptTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP) "</span>, c1) </span><br><span class="line">  <span class="keyword">if</span> _, err = dbs.db.Exec(c2); err != <span class="constant">nil</span> &#123;</span><br><span class="line">    fmt.Println(err)</span><br><span class="line">    <span class="keyword">return</span> err</span><br><span class="line">  &#125; </span><br><span class="line">  <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">func</span> (dbs *DBStruct) dbInsert(tableName <span class="typename">string</span>) (err error) &#123; </span><br><span class="line">  err = dbs.db.Ping()</span><br><span class="line">  <span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line">    fmt.Println(err)</span><br><span class="line">    <span class="keyword">return</span> err</span><br><span class="line">  &#125; </span><br><span class="line">  t := time.Now() </span><br><span class="line">  <span class="keyword">var</span> INSERT <span class="typename">string</span> </span><br><span class="line">  INSERT = fmt.Sprintf(<span class="string">"INSERT INTO %s (LastUptTime) VALUES( '%s') "</span>, tableName, t.Format(<span class="string">"20060102150405"</span>)) </span><br><span class="line">  <span class="keyword">if</span> _, err = dbs.db.Exec(INSERT); err != <span class="constant">nil</span> &#123;</span><br><span class="line">    fmt.Println(err)</span><br><span class="line">    <span class="keyword">return</span> err</span><br><span class="line">  &#125; </span><br><span class="line">  <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">func</span> main() &#123; </span><br><span class="line">  ip := <span class="string">"10.62.8.175:3306"</span></span><br><span class="line">  dbName := <span class="string">"test"</span></span><br><span class="line">  dbString = <span class="string">"root:123456@tcp("</span> + ip + <span class="string">")/"</span> + dbName</span><br><span class="line">  tableName := <span class="string">"jeff"</span> </span><br><span class="line">  runtime.GOMAXPROCS(runtime.NumCPU())</span><br><span class="line">  <span class="keyword">var</span> dbs DBStruct</span><br><span class="line">  dbs.dbOpen() </span><br><span class="line">  dbs.dbCreate(tableName)   </span><br><span class="line">  dbs.dbInsert(tableName) </span><br><span class="line">  dbs.dbClose() </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
 
 <nav id="pagination">
   
+  
+    <a href="/page/2/" class="alignright next">Next</a>
   
   <div class="clearfix"></div>
 </nav></div></div>
     <aside id="sidebar" class="alignright">
   <div class="search">
   <form action="//google.com/search" method="get" accept-charset="utf-8">
-    <input type="search" name="q" results="0" placeholder="Buscar">
+    <input type="search" name="q" results="0" placeholder="Search">
     <input type="hidden" name="q" value="site:chihchengyang.github.io">
   </form>
 </div>
@@ -819,18 +847,20 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
   
   <div class="widget tag">
     <h3 class="title">Archives</h3>
-    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
   </div>
 
 
   
 <div class="widget tag">
-  <h3 class="title">Categorías</h3>
+  <h3 class="title">Categories</h3>
   <ul class="entry">
   
-    <li><a href="/categories/Coding/">Coding</a><small>8</small></li>
+    <li><a href="/categories/Coding/">Coding</a><small>9</small></li>
   
     <li><a href="/categories/Tools/">Tools</a><small>2</small></li>
+  
+    <li><a href="/categories/Coding/Tools/">Tools</a><small>1</small></li>
   
   </ul>
 </div>
@@ -838,8 +868,10 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
 
   
 <div class="widget tag">
-  <h3 class="title">Etiquetas</h3>
+  <h3 class="title">Tags</h3>
   <ul class="entry">
+  
+    <li><a href="/tags/android/">android</a><small>1</small></li>
   
     <li><a href="/tags/c-c/">c/c++</a><small>1</small></li>
   
@@ -853,7 +885,9 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
   
     <li><a href="/tags/supervisord/">supervisord</a><small>3</small></li>
   
-    <li><a href="/tags/tools/">tools</a><small>2</small></li>
+    <li><a href="/tags/tools/">tools</a><small>3</small></li>
+  
+    <li><a href="/tags/vm/">vm</a><small>1</small></li>
   
   </ul>
 </div>

@@ -6,7 +6,7 @@
 </a>
   <meta charset="utf-8">
   
-  <title>Docker-compose 1 | Jeff Yang</title>
+  <title>Virtual android phones | Jeff Yang</title>
   <meta name="author" content="Jeff Yang">
   
   <meta name="description" content="c golang docker mysql">
@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="Docker-compose 1"/>
+  <meta property="og:title" content="Virtual android phones"/>
   <meta property="og:site_name" content="Jeff Yang"/>
 
   
@@ -54,28 +54,42 @@
     <header>
       
         <div class="icon"></div>
-        <time datetime="2016-01-05T10:40:12.000Z"><a href="/2016/01/05/Docker-compose-1/">2016-01-05</a></time>
+        <time datetime="2016-02-04T10:40:12.000Z"><a href="/2016/02/04/Virtual-android-phones/">2016-02-04</a></time>
       
       
   
-    <h1 class="title">Docker-compose 1</h1>
+    <h1 class="title">Virtual android phones</h1>
   
 
     </header>
     <div class="entry">
       
-        <p>欲控制多組containers,可以使用現有manage multi-processes軟體如:Supervisor…等<br>但也許會出現一些問題 <a href="http://stackoverflow.com/questions/30034813/best-way-to-manage-docker-containers-with-supervisord" target="_blank" rel="external">http://stackoverflow.com/questions/30034813/best-way-to-manage-docker-containers-with-supervisord</a></p>
-<p>Docker官方提供Compose來執行控制多組containers</p>
-<p><a href="https://github.com/docker/compose/" target="_blank" rel="external">https://github.com/docker/compose/</a></p>
-<p>Compose is a tool for defining and running multi-container Docker applications.</p>
-<p>安裝…<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ wget https://bootstrap.pypa.io/ez_setup.py -O - | sudo python</span><br><span class="line">$ sudo easy_install pip</span><br><span class="line">$ sudo pip install -U docker-compose</span><br></pre></td></tr></table></figure></p>
-<p>docker run 轉成 docker-compose yaml 語法…<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># docker run -itd --name jeff --restart=always -p 9080:9080  -v /home/jeff/code/:/home/code centos</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># docker-compose.yml</span></span><br><span class="line">build:   </span><br><span class="line">    container_name: jeff    </span><br><span class="line">    image: centos    </span><br><span class="line">    ports:</span><br><span class="line">        - <span class="number">9080</span>:<span class="number">9080</span>    </span><br><span class="line">    volumes:        </span><br><span class="line">        - /home/jeff/code/:/home/code    </span><br><span class="line">    restart: always          </span><br><span class="line">    stdin_open: <span class="literal">true</span>    </span><br><span class="line">    tty: <span class="literal">true</span></span><br></pre></td></tr></table></figure></p>
-<p>同一目錄下執行…</p>
-<p><pre><code><br>docker-compose up -d</code></pre></p>
-<p><pre><code> </code></pre></p>
-<p>Check…</p>
-<p><pre><code><br>docker inspect jeff </code></pre></p>
-<p><pre><code> </code></pre></p>
+        <h2 id="Try_to_create_virtual_android_phones_on_server"><a href="#Try_to_create_virtual_android_phones_on_server" class="headerlink" title="Try to create virtual android phones on server."></a>Try to create virtual android phones on server.</h2><p>Ref.: <a href="http://android-x86.googlecode.com/files/Wowmom-CR2.pdf" title="Virtual Smartphone over IP" target="_blank" rel="external">Virtual Smartphone over IP</a></p>
+<p><em>Some android emulators:</em></p>
+<ol>
+<li>Android-x86<br><a href="http://www.android-x86.org/" target="_blank" rel="external">http://www.android-x86.org/</a></li>
+<li>ARChon Custom Runtime<br><a href="http://archon-runtime.github.io/" target="_blank" rel="external">http://archon-runtime.github.io/</a></li>
+<li>Official Android SDK Emulator w/HAXM<br><a href="http://developer.android.com/sdk/index.html" target="_blank" rel="external">http://developer.android.com/sdk/index.html</a></li>
+<li>Android on Intel Architecture<br><a href="https://01.org/android-ia" target="_blank" rel="external">https://01.org/android-ia</a></li>
+<li>ARC Welder<br><a href="https://developer.chrome.com/apps/getstarted_arc" target="_blank" rel="external">https://developer.chrome.com/apps/getstarted_arc</a></li>
+</ol>
+<h2 id="Remote_control"><a href="#Remote_control" class="headerlink" title="Remote control"></a>Remote control</h2><p>Linux Ubuntu 14.04 64bit</p>
+<p><em>Prerequisite:</em> </p>
+<ol>
+<li>Android-x86</li>
+<li>VirtualBox</li>
+<li>Python…</li>
+</ol>
+<p><strong>Steps</strong></p>
+<ol>
+<li>download <a href="http://www.android-x86.org/download" title="android-x86-5.1-rc1.iso" target="_blank" rel="external">android-x86-5.1-rc1.iso</a></li>
+<li>dkpg -i virtualbox-5.0_5.0.12-104815-Ubuntu-trusty_amd64.deb<br>Need to enable Intel VT-X or AMD-V in your bios configuration</li>
+<li>install android-x86 in virtualbox<br>In android-x86 press Alt+F1 entry console mode<br>netcfg<br>check ip<br>ifconfig eth0 xx.xx.xx.xx netmask 255.255.255.0<br>Alt+F7 GUI mode</li>
+</ol>
+<img src="/2016/02/04/Virtual-android-phones/Screenshot1.png" alt="finish install" title="finish install">
+<ol>
+<li>cotrol virtualbox on console<br><em>Start VM</em><br>if run as root:<br>sudo -u jeff -H VBoxManage startvm Android<br>background mode<br>sudo -u jeff -H VBoxHeadless -s Android -v on -e “TCP/Ports=33899”</li>
+</ol>
 
       
     </div>
@@ -84,13 +98,13 @@
         
   
   <div class="categories">
-    <a href="/categories/Coding/">Coding</a>
+    <a href="/categories/Coding/">Coding</a>, <a href="/categories/Coding/Tools/">Tools</a>
   </div>
 
         
   
   <div class="tags">
-    <a href="/tags/docker/">docker</a>
+    <a href="/tags/android/">android</a>, <a href="/tags/tools/">tools</a>, <a href="/tags/vm/">vm</a>
   </div>
 
         
@@ -133,7 +147,7 @@
   }(document, 'script', 'facebook-jssdk'));
 </script>
 
-<div class="fb-comments" data-href="http://chihchengyang.github.io/2016/01/05/Docker-compose-1/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+<div class="fb-comments" data-href="http://chihchengyang.github.io/2016/02/04/Virtual-android-phones/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
       
   
 </section>
