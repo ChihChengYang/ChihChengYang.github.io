@@ -65,7 +65,7 @@
     </header>
     <div class="entry">
       
-        <h2 id="Try_to_create_virtual_android_phones_on_server"><a href="#Try_to_create_virtual_android_phones_on_server" class="headerlink" title="Try to create virtual android phones on server."></a>Try to create virtual android phones on server.</h2><p>Ref.: <a href="http://android-x86.googlecode.com/files/Wowmom-CR2.pdf" title="Virtual Smartphone over IP" target="_blank" rel="external">Virtual Smartphone over IP</a></p>
+        <h1 id="Try_to_create_virtual_android_phones_on_server"><a href="#Try_to_create_virtual_android_phones_on_server" class="headerlink" title="Try to create virtual android phones on server."></a>Try to create virtual android phones on server.</h1><p>Ref.: <a href="http://android-x86.googlecode.com/files/Wowmom-CR2.pdf" title="Virtual Smartphone over IP" target="_blank" rel="external">Virtual Smartphone over IP</a></p>
 <p><em>Some android emulators:</em></p>
 <ol>
 <li>Android-x86<br><a href="http://www.android-x86.org/" target="_blank" rel="external">http://www.android-x86.org/</a></li>
@@ -74,23 +74,167 @@
 <li>Android on Intel Architecture<br><a href="https://01.org/android-ia" target="_blank" rel="external">https://01.org/android-ia</a></li>
 <li>ARC Welder<br><a href="https://developer.chrome.com/apps/getstarted_arc" target="_blank" rel="external">https://developer.chrome.com/apps/getstarted_arc</a></li>
 </ol>
-<h2 id="Remote_control"><a href="#Remote_control" class="headerlink" title="Remote control"></a>Remote control</h2><p>Linux Ubuntu 14.04 64bit</p>
+<h1 id="Remote_control"><a href="#Remote_control" class="headerlink" title="Remote control"></a>Remote control</h1><p>Linux Ubuntu 14.04 64bit</p>
 <p><em>Prerequisite:</em> </p>
 <ol>
 <li>Android-x86</li>
 <li>VirtualBox</li>
 <li>Python…</li>
 </ol>
-<p><strong>Steps</strong></p>
-<ol>
+<h2 id="Steps"><a href="#Steps" class="headerlink" title="Steps"></a><strong>Steps</strong></h2><ol>
 <li>download <a href="http://www.android-x86.org/download" title="android-x86-5.1-rc1.iso" target="_blank" rel="external">android-x86-5.1-rc1.iso</a></li>
 <li>dkpg -i virtualbox-5.0_5.0.12-104815-Ubuntu-trusty_amd64.deb<br>Need to enable Intel VT-X or AMD-V in your bios configuration</li>
-<li>install android-x86 in virtualbox<br>In android-x86 press Alt+F1 entry console mode<br>netcfg<br>check ip<br>ifconfig eth0 xx.xx.xx.xx netmask 255.255.255.0<br>Alt+F7 GUI mode</li>
+<li>install android-x86 in virtualbox</li>
+<li>cotrol virtualbox on console<br><em>Start VM</em><br>If run as root: </li>
 </ol>
-<img src="/2016/02/04/Virtual-android-phones/Screenshot1.png" alt="finish install" title="finish install">
-<ol>
-<li>cotrol virtualbox on console<br><em>Start VM</em><br>if run as root:<br>sudo -u jeff -H VBoxManage startvm Android<br>background mode<br>sudo -u jeff -H VBoxHeadless -s Android -v on -e “TCP/Ports=33899”</li>
-</ol>
+<ul>
+<li>sudo -u jeff -H VBoxManage startvm Android<br>background mode</li>
+<li>sudo -u jeff -H VBoxHeadless -s Android -v on -e “TCP/Ports=31000”<br><em>Stop VM</em></li>
+<li>sudo -u jeff -H VBoxManage startvm Android</li>
+</ul>
+<h2 id="*"><a href="#*" class="headerlink" title="*"></a><em>*</em></h2><img src="/2016/02/04/Virtual-android-phones/Screenshot1.png" alt="finish install" title="finish install">
+<h2 id="Test"><a href="#Test" class="headerlink" title="Test"></a><strong>Test</strong></h2><h3 id="TCP_socket"><a href="#TCP_socket" class="headerlink" title="TCP socket"></a><strong>TCP socket</strong></h3><p>In android-x86 press Alt+F1 entry console mode<br>netcfg<br>check ip<br>ifconfig eth0 xx.xx.xx.xx netmask 255.255.255.0<br>Alt+F7 GUI mode</p>
+<p><strong>1, Server send a message -&gt; Android VM app receive the message</strong></p>
+<p><strong>Server</strong><br><strong><em>client.py</em></strong></p>
+<pre><code class="python"><span class="comment"># -*- coding: utf-8 -*-</span>
+<span class="keyword">import</span> socket 
+<span class="function"><span class="keyword">def</span> <span class="title">Main</span><span class="params">()</span>:</span>
+    host = <span class="string">'192.168.42.142'</span>
+    port = <span class="number">10090</span>         
+    mySocket = socket.socket()
+    mySocket.connect((host,port))        
+    message = input(<span class="string">" -&gt; "</span>)         
+    <span class="keyword">while</span> message != <span class="string">'e'</span>:
+        mySocket.send(message.encode())            
+        message = input(<span class="string">" -&gt; "</span>)                 
+    mySocket.close() 
+<span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:
+    Main()
+</code></pre>
+<p><strong>Android VM app</strong></p>
+<p><strong><em>SockerService.java</em></strong></p>
+<pre><code class="java"><span class="keyword">package</span> com.example.user.myapplication;
+<span class="keyword">import</span> android.app.IntentService;
+<span class="keyword">import</span> android.content.Context;
+<span class="keyword">import</span> android.content.Intent;
+<span class="keyword">import</span> android.util.Log;
+<span class="keyword">import</span> android.widget.TextView;
+<span class="keyword">import</span> java.io.BufferedReader;
+<span class="keyword">import</span> java.io.BufferedWriter;
+<span class="keyword">import</span> java.io.InputStream;
+<span class="keyword">import</span> java.io.InputStreamReader;
+<span class="keyword">import</span> java.io.OutputStream;
+<span class="keyword">import</span> java.io.OutputStreamWriter;
+<span class="keyword">import</span> java.net.ServerSocket;
+<span class="keyword">import</span> java.net.Socket;
+
+<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SocketService</span> <span class="keyword">extends</span> <span class="title">IntentService</span> </span>{
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String ACTION_MyIntentService = <span class="string">"com.example.user.myapplication.RESPONSE"</span>;
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String ACTION_MyUpdate = <span class="string">"com.example.user.myapplication.UPDATE"</span>;
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String EXTRA_KEY_IN = <span class="string">"EXTRA_IN"</span>;
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String EXTRA_KEY_OUT = <span class="string">"EXTRA_OUT"</span>;
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String EXTRA_KEY_UPDATE = <span class="string">"EXTRA_UPDATE"</span>;
+    <span class="keyword">private</span> Context context;
+    <span class="keyword">private</span> String name; 
+    <span class="keyword">private</span> <span class="keyword">int</span> Port = <span class="number">10090</span>;
+    <span class="keyword">private</span> ServerSocket server_socket;
+    <span class="keyword">private</span> Socket socket;
+    <span class="keyword">private</span> InputStream in;
+    <span class="keyword">private</span> OutputStream out;
+    <span class="keyword">private</span> BufferedReader reader; 
+    <span class="keyword">private</span> String messgae = <span class="keyword">null</span>;
+    <span class="function"><span class="keyword">public</span> <span class="title">SocketService</span><span class="params">()</span> </span>{
+        <span class="keyword">super</span>(<span class="string">"SocketService"</span>);
+        <span class="comment">// TODO Auto-generated constructor stub</span>
+    }
+    <span class="function"><span class="keyword">public</span> <span class="title">SocketService</span><span class="params">(Context context, String name)</span> </span>{       
+        <span class="keyword">super</span>(<span class="string">"SocketService"</span>);
+        <span class="keyword">this</span>.context = context;
+        <span class="keyword">this</span>.name = name;
+    }
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onHandleIntent</span><span class="params">(Intent intent)</span> </span>{
+        <span class="comment">// TODO Auto-generated method stub</span>
+        <span class="keyword">while</span> (<span class="keyword">true</span>) {
+            <span class="keyword">try</span> {              
+                socket = server_socket.accept(); 
+                in = socket.getInputStream();
+                reader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(in));
+                messgae = reader.readLine();  
+                Intent intentResponse = <span class="keyword">new</span> Intent();
+                intentResponse.setAction(ACTION_MyIntentService);
+                intentResponse.addCategory(Intent.CATEGORY_DEFAULT);
+                intentResponse.putExtra(EXTRA_KEY_OUT, messgae.toString());
+                sendBroadcast(intentResponse);
+            } <span class="keyword">catch</span> (Exception e) {
+                e.printStackTrace();
+                Log.i(<span class="string">"service exception"</span>, e.getMessage());
+            }
+        }
+    } 
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>{
+        <span class="comment">// TODO Auto-generated method stub</span>
+        <span class="keyword">super</span>.onCreate();
+        <span class="keyword">try</span> {
+            server_socket = <span class="keyword">new</span> ServerSocket(Port); 
+        } <span class="keyword">catch</span> (Exception e) {
+            <span class="comment">// TODO Auto-generated catch block</span>
+            e.printStackTrace(); 
+        }
+    }
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>{
+        <span class="comment">// TODO Auto-generated method stub</span>
+        <span class="keyword">super</span>.onDestroy();
+    }
+}
+</code></pre>
+<p><strong><em>AndroidManifest.xml</em></strong></p>
+<pre><code class="java">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.user.myapplication" &gt;
+    &lt;uses-permission android:name="android.permission.INTERNET"/&gt;
+    &lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt;
+    &lt;uses-permission android:name="android.permission.INTERNET"/&gt;
+    &lt;application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme" &gt;
+        &lt;activity android:name=".MainActivity" &gt;
+            &lt;intent-filter&gt;
+                &lt;action android:name="android.intent.action.MAIN" /&gt;
+                &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
+            &lt;/intent-filter&gt;
+        &lt;/activity&gt;
+        &lt;service android:name=".SocketService" &gt;
+        &lt;/service&gt;
+    &lt;/application&gt;
+&lt;/manifest&gt;
+</code></pre>
+<h2 id="*-1"><a href="#*-1" class="headerlink" title="*"></a><em>*</em></h2><img src="/2016/02/04/Virtual-android-phones/Screenshot2.png" alt="run" title="run">
+<p><strong>2, Android VM send a message once finishing satrt -&gt; Server receive the message</strong></p>
+<p>~ TODO ~</p>
+<h3 id="Use_simple-web-vnc"><a href="#Use_simple-web-vnc" class="headerlink" title="Use simple-web-vnc"></a><strong>Use simple-web-vnc</strong></h3><p>First, get the application window name.</p>
+<p><strong>$ xwininfo -root -tree | grep VirtualBox</strong><br>0x4000001 “VirtualBox”: (“VirtualBox” “VirtualBox”)  10x10+10+10  +10+10<br>0x1a0000c “Oracle VM VirtualBox Manager”: (“VirtualBox” “VirtualBox”)  975x513+0+0  +765+196<br>0x420000c <strong>“Android [Running] - Oracle VM VirtualBox”:</strong> (“VirtualBox” “VirtualBox”)  800x622+0+0  +238+176</p>
+<p>Modify code in <a href="https://github.com/ChihChengYang/simple-web-vnc" title="Simple-web-vnc" target="_blank" rel="external">Simple-web-vnc</a><br><strong><em>server.go</em></strong></p>
+<pre><code class="go"><span class="keyword">func</span> (conn *connection) appStreaming() { 
+    windowName :=  <span class="string">"Android [Running] - Oracle VM VirtualBox"</span> 
+    wn := C.CString(windowName)
+    conn.appHandle = C.app_create(<span class="number">1024</span>, <span class="number">0</span>,<span class="number">0</span>, <span class="number">800</span>, <span class="number">600</span>, wn);
+    ...
+}
+</code></pre>
+<p><strong><em>Notice: Mouse position mapping still has some problems between Android VM and canvas !!!</em></strong></p>
+<p><strong>Demo</strong></p>
+<iframe width="640" height="360" src="https://www.youtube.com/embed/XzA04D46GvY" frameborder="0" allowfullscreen></iframe>
+
+
+
+
+
 
       
     </div>
@@ -832,14 +976,14 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
 <nav id="pagination">
   
   
-    <a href="/page/2/" class="alignright next">Next</a>
+    <a href="/page/2/" class="alignright next">下一頁</a>
   
   <div class="clearfix"></div>
 </nav></div></div>
     <aside id="sidebar" class="alignright">
   <div class="search">
   <form action="//google.com/search" method="get" accept-charset="utf-8">
-    <input type="search" name="q" results="0" placeholder="Search">
+    <input type="search" name="q" results="0" placeholder="搜尋">
     <input type="hidden" name="q" value="site:chihchengyang.github.io">
   </form>
 </div>
@@ -853,14 +997,14 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
 
   
 <div class="widget tag">
-  <h3 class="title">Categories</h3>
+  <h3 class="title">分類</h3>
   <ul class="entry">
   
     <li><a href="/categories/Coding/">Coding</a><small>9</small></li>
   
-    <li><a href="/categories/Tools/">Tools</a><small>2</small></li>
-  
     <li><a href="/categories/Coding/Tools/">Tools</a><small>1</small></li>
+  
+    <li><a href="/categories/Tools/">Tools</a><small>2</small></li>
   
   </ul>
 </div>
@@ -868,7 +1012,7 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
 
   
 <div class="widget tag">
-  <h3 class="title">Tags</h3>
+  <h3 class="title">標籤</h3>
   <ul class="entry">
   
     <li><a href="/tags/android/">android</a><small>1</small></li>
