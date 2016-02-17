@@ -55,6 +55,60 @@
     <header>
       
         <div class="icon"></div>
+        <time datetime="2015-12-30T10:40:12.000Z"><a href="/2015/12/30/Docker-network/">2015-12-30</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/12/30/Docker-network/">Docker 網路連線</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h2 id="CentOS7__u4E0B_u5B89_u88DD_docker"><a href="#CentOS7__u4E0B_u5B89_u88DD_docker" class="headerlink" title="CentOS7 下安裝 docker"></a>CentOS7 下安裝 docker</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sudo</span> yum install docker</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sudo</span> service docker start</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sudo</span> chkconfig docker on</span><br></pre></td></tr></table></figure>
+<h2 id="u5B89_u88DD_u5B8C_u6210_u5F8C_uFF0C_u57F7_u884C_u4EE5_u4E0B_u6307_u4EE4"><a href="#u5B89_u88DD_u5B8C_u6210_u5F8C_uFF0C_u57F7_u884C_u4EE5_u4E0B_u6307_u4EE4" class="headerlink" title="安裝完成後，執行以下指令"></a>安裝完成後，執行以下指令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$docker</span> run -it --name jeff -p <span class="number">9080</span>:<span class="number">9080</span> -v /home/jeff/code/:/home/code centos /bin/bash</span><br></pre></td></tr></table></figure>
+<p>-v /home/jeff/code/:/home/code 掛載Host主機下目錄</p>
+<h2 id="u4E00_u4E9B_u554F_u984C"><a href="#u4E00_u4E9B_u554F_u984C" class="headerlink" title="一些問題"></a>一些問題</h2><ul>
+<li><p>當進入container掛載目錄後，執行ls發生錯誤<br><font color="red"><br>[root@a52a9c808ba5 code]# ls: cannot open directory .: Permission denied<br></font><br>解法:<br>在Host掛載目錄下執行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$chcon</span> -Rt svirt_sandbox_file_t ./code/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>容器要想存取外部網路，需要host支援forward</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sysctl</span> net.ipv4.ip_forward</span><br><span class="line">net.ipv4.ip_forward = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>  如果為 0，說明沒有開啟轉發，則需要手動打開。</p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sysctl</span> -w net.ipv4.ip_forward=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$service</span> docker restart</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>進入container後ping外部ip確認是否成功連線</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@a52a9c808ba5 /]<span class="comment"># ping 10.62.8.175</span></span><br><span class="line">PING <span class="number">10.62</span>.<span class="number">8.175</span> (<span class="number">10.62</span>.<span class="number">8.175</span>) <span class="number">56</span>(<span class="number">84</span>) bytes of data.</span><br><span class="line"><span class="number">64</span> bytes from <span class="number">10.62</span>.<span class="number">8.175</span>: icmp_seq=<span class="number">7</span> ttl=<span class="number">127</span> time=<span class="number">1.01</span> ms</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="u53C3_u8003_3A"><a href="#u53C3_u8003_3A" class="headerlink" title="參考:"></a>參考:</h2><p>[1] <a href="https://github.com/philipz/docker_practice" target="_blank" rel="external">https://github.com/philipz/docker_practice</a></p>
+<p>[2] <a href="http://blog.scottlowe.org/2013/09/04/introducing-linux-network-namespaces/" target="_blank" rel="external">http://blog.scottlowe.org/2013/09/04/introducing-linux-network-namespaces/</a></p>
+<p>[3] <a href="http://www.infoq.com/cn/articles/docker-network-and-pipework-open-source-explanation-practice#rd" target="_blank" rel="external">http://www.infoq.com/cn/articles/docker-network-and-pipework-open-source-explanation-practice#rd</a></p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
         <time datetime="2015-12-29T10:40:12.000Z"><a href="/2015/12/29/Connect-to-mysql-from-golang/">2015-12-29</a></time>
       
       
@@ -100,7 +154,7 @@
   
   <div class="widget tag">
     <h3 class="title">Archives</h3>
-    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
   </div>
 
 
@@ -108,6 +162,8 @@
 <div class="widget tag">
   <h3 class="title">分類</h3>
   <ul class="entry">
+  
+    <li><a href="/categories/Algorithm/">Algorithm</a><small>1</small></li>
   
     <li><a href="/categories/Coding/">Coding</a><small>9</small></li>
   
@@ -135,6 +191,8 @@
     <li><a href="/tags/ipmi/">ipmi</a><small>1</small></li>
   
     <li><a href="/tags/javascript/">javascript</a><small>1</small></li>
+  
+    <li><a href="/tags/python/">python</a><small>2</small></li>
   
     <li><a href="/tags/supervisord/">supervisord</a><small>3</small></li>
   
