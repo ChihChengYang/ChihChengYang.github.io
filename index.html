@@ -55,6 +55,154 @@
     <header>
       
         <div class="icon"></div>
+        <time datetime="2016-02-24T10:00:00.000Z"><a href="/2016/02/24/Access-MySQL-with-Python/">2016-02-24</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2016/02/24/Access-MySQL-with-Python/">Access MySQL with Python</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Scan all json files in folder and then update or insert into DB…</p>
+<p>Usage  </p>
+<p><strong><em>Update or Insert</em></strong><br> python3 sm.py<br><strong><em>Delete</em></strong><br> python3 sm.py d TagID<br><strong><em>Query</em></strong><br> python3 sm.py q</p>
+<p><strong><em>Config.ini</em></strong><br>[JSON_FILES_PATH]<br>Json_Files_Path = ./json_files/<br>[DB_CONFIG]<br>DB_Ip = 10.62.8.10<br>DB_Usr = root<br>DB_Pws = 1234<br>DB_Name = dbName<br>DB_Table = tableName</p>
+<p><strong><em>/json_files/xx.json</em></strong><br>{<br>  “t1”: [<br>        {“TagID”: “th0”, “DevID”: “DevID0”, “ModelIdx”: “0”, “ModelType”: “device_name_0”},<br>        {“TagID”: “th1”, “DevID”: “DevID1”, “ModelIdx”: “1”, “ModelType”: “device_name_1”}<br>  ],<br>  “t2”: [<br>        {“TagID”: “th2”, “DevID”: “DevID2”, “ModelIdx”: “2”, “ModelType”: “device_name_2”}<br>  ]<br>}</p>
+<p><strong><em>DB struct</em></strong><br>dbName<br>tableName<br>TagID varchar(32) Primary Key<br>DevID varchar(32) Primary Key<br>ModelIdx  int(3)<br>ModelType varchar(30)<br>ModelOrder  tinyint(3) </p>
+<p><strong><em>sm.py</em></strong></p>
+<pre><code class="python"><span class="comment"># -*- coding: utf-8 -*-</span>
+<span class="keyword">import</span> MySQLdb <span class="keyword">as</span> mdb
+<span class="keyword">import</span> json
+<span class="keyword">import</span> os
+<span class="keyword">import</span> sys
+<span class="keyword">import</span> configparser
+
+SENSORS_MAPPING_PATH = <span class="string">"./json_files/"</span>
+DB_IP = <span class="string">'10.62.8.10'</span>
+DB_USR = <span class="string">'root'</span>
+DB_PWS = <span class="string">'1234'</span>
+DB_NAME = <span class="string">'dbName'</span>
+DB_TABLE = <span class="string">'tableName'</span>
+
+<span class="function"><span class="keyword">def</span> <span class="title">CheckDBPrimaryKey</span><span class="params">()</span>:</span>
+    con = mdb.connect(DB_IP, DB_USR, DB_PWS, DB_NAME);
+    <span class="keyword">with</span> con:
+        cur = con.cursor() 
+        cur.execute(<span class="string">"""
+        SELECT COUNT(1)
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = '%s'
+        AND TABLE_NAME = '%s'
+        AND COLUMN_KEY = 'PRI';"""</span>
+        % (DB_NAME, DB_TABLE) )
+        con.commit()
+        <span class="keyword">if</span> cur.fetchone()[<span class="number">0</span>]:
+            <span class="keyword">return</span> <span class="keyword">True</span>
+    <span class="keyword">return</span> <span class="keyword">False</span>
+
+<span class="function"><span class="keyword">def</span> <span class="title">UpdateDB</span><span class="params">(tagID, devID, modelIdx, modelType)</span>:</span>    
+    con = mdb.connect(DB_IP, DB_USR, DB_PWS, DB_NAME);
+    <span class="keyword">with</span> con:
+        cur = con.cursor()  
+        cur.execute(<span class="string">"""
+        INSERT INTO %s (TagID, DevID, ModelIdx, ModelType) VALUES ('%s','%s','%s','%s')                                  
+        ON DUPLICATE KEY UPDATE 
+        ModelIdx = VALUES(ModelIdx), ModelType = VALUES(ModelType);"""</span>  
+        % (DB_TABLE, tagID, devID, modelIdx, modelType) )        
+        con.commit()
+
+<span class="function"><span class="keyword">def</span> <span class="title">ParserFiles</span><span class="params">()</span>:</span>
+    files = os.listdir(SENSORS_MAPPING_PATH)
+    files_json = [i <span class="keyword">for</span> i <span class="keyword">in</span> files <span class="keyword">if</span> i.endswith(<span class="string">'.json'</span>)]
+    <span class="keyword">for</span> fj <span class="keyword">in</span> files_json:
+        <span class="keyword">with</span> open(os.path.join(SENSORS_MAPPING_PATH, fj) , <span class="string">'r'</span>) <span class="keyword">as</span> jsonData:
+            d = json.load(jsonData)         
+            <span class="keyword">for</span> v <span class="keyword">in</span> d.values():          
+                <span class="keyword">for</span> c <span class="keyword">in</span> range(len(v)):
+                    <span class="keyword">try</span>:
+                        <span class="keyword">if</span> v[c][<span class="string">'TagID'</span>]!=<span class="string">""</span> <span class="keyword">and</span> v[c][<span class="string">'DevID'</span>]!=<span class="string">""</span>: 
+                            UpdateDB(v[c][<span class="string">'TagID'</span>],v[c][<span class="string">'DevID'</span>],v[c][<span class="string">'ModelIdx'</span>],v[c][<span class="string">'ModelType'</span>]) 
+                        <span class="keyword">else</span>:  
+                            print(<span class="string">'TagID or DevID is None'</span>)     
+                    <span class="keyword">except</span> KeyError:
+                        print(<span class="string">'I got a KeyError'</span>)
+                        <span class="keyword">pass</span>
+                    <span class="keyword">except</span>:
+                        print(<span class="string">'I got a Error'</span>) 
+
+<span class="function"><span class="keyword">def</span> <span class="title">DeleteDB</span><span class="params">(tagID, devID=None)</span>:</span>    
+    con = mdb.connect(DB_IP, DB_USR, DB_PWS, DB_NAME);
+    <span class="keyword">with</span> con:
+        cur = con.cursor()   
+        cur.execute(<span class="string">"DELETE FROM  %s WHERE tagID = '%s'"</span> % (DB_TABLE,tagID))
+        con.commit() 
+        print(<span class="string">'Delete %s Finished !!!'</span>%(tagID))
+
+<span class="function"><span class="keyword">def</span> <span class="title">QueryDB</span><span class="params">()</span>:</span>  
+    con = mdb.connect(DB_IP, DB_USR, DB_PWS, DB_NAME);
+    <span class="keyword">with</span> con:
+        cur = con.cursor()  
+        cur.execute(<span class="string">"SELECT * FROM  %s"</span> % (DB_TABLE))
+        rows = cur.fetchall()
+        <span class="keyword">for</span> row <span class="keyword">in</span> rows:
+            print(row)
+
+<span class="function"><span class="keyword">def</span> <span class="title">Main</span><span class="params">()</span>:</span> 
+    <span class="keyword">global</span> SENSORS_MAPPING_PATH  
+    <span class="keyword">global</span> DB_IP  
+    <span class="keyword">global</span> DB_USR
+    <span class="keyword">global</span> DB_PWS
+    <span class="keyword">global</span> DB_NAME
+    <span class="keyword">global</span> DB_TABLE    
+    config = configparser.ConfigParser()
+    config.read(<span class="string">'Config.ini'</span>)
+    <span class="keyword">try</span>:
+        SENSORS_MAPPING_PATH = config.get(<span class="string">'JSON_FILES_PATH'</span>, <span class="string">'Json_Files_Path'</span>) 
+        DB_IP = config.get(<span class="string">'DB_CONFIG'</span>, <span class="string">'DB_Ip'</span>)  
+        DB_USR = config.get(<span class="string">'DB_CONFIG'</span>, <span class="string">'DB_Usr'</span>)
+        DB_PWS = config.get(<span class="string">'DB_CONFIG'</span>, <span class="string">'DB_Pws'</span>)
+        DB_NAME = config.get(<span class="string">'DB_CONFIG'</span>, <span class="string">'DB_Name'</span>)
+        DB_TABLE = config.get(<span class="string">'DB_CONFIG'</span>, <span class="string">'DB_Table'</span>)         
+        <span class="keyword">if</span> len(sys.argv) &lt; <span class="number">2</span>:
+            <span class="keyword">if</span> CheckDBPrimaryKey():
+                ParserFiles()   
+            <span class="keyword">else</span>:
+                print(<span class="string">'ERROR!!! DB Primary Key NOT FOUND~~'</span>)
+        <span class="keyword">else</span>:
+            <span class="keyword">if</span> sys.argv[<span class="number">1</span>] == <span class="string">'d'</span>:         
+                DeleteDB(sys.argv[<span class="number">2</span>])           
+            <span class="keyword">if</span> sys.argv[<span class="number">1</span>] == <span class="string">'q'</span>:
+                QueryDB()
+    <span class="keyword">except</span>:
+        print(<span class="string">'ERROR INI!!!'</span> )
+
+<span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:
+    Main()
+</code></pre>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
         <time datetime="2016-02-17T10:40:12.000Z"><a href="/2016/02/17/Phase-Stretch-Transform/">2016-02-17</a></time>
       
       
@@ -910,50 +1058,6 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
 
 
 
-  <article class="post">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time datetime="2016-01-05T10:40:12.000Z"><a href="/2016/01/05/Docker-compose-1/">2016-01-05</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2016/01/05/Docker-compose-1/">Docker-compose 1</a></h1>
-  
-
-    </header>
-    <div class="entry">
-      
-        <p>欲控制多組containers,可以使用現有manage multi-processes軟體如:Supervisor…等<br>但也許會出現一些問題 <a href="http://stackoverflow.com/questions/30034813/best-way-to-manage-docker-containers-with-supervisord" target="_blank" rel="external">http://stackoverflow.com/questions/30034813/best-way-to-manage-docker-containers-with-supervisord</a></p>
-<p>Docker官方提供Compose來執行控制多組containers</p>
-<p><a href="https://github.com/docker/compose/" target="_blank" rel="external">https://github.com/docker/compose/</a></p>
-<p>Compose is a tool for defining and running multi-container Docker applications.</p>
-<p>安裝…<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ wget https://bootstrap.pypa.io/ez_setup.py -O - | sudo python</span><br><span class="line">$ sudo easy_install pip</span><br><span class="line">$ sudo pip install -U docker-compose</span><br></pre></td></tr></table></figure></p>
-<p>docker run 轉成 docker-compose yaml 語法…<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># docker run -itd --name jeff --restart=always -p 9080:9080  -v /home/jeff/code/:/home/code centos</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># docker-compose.yml</span></span><br><span class="line">build:   </span><br><span class="line">    container_name: jeff    </span><br><span class="line">    image: centos    </span><br><span class="line">    ports:</span><br><span class="line">        - <span class="number">9080</span>:<span class="number">9080</span>    </span><br><span class="line">    volumes:        </span><br><span class="line">        - /home/jeff/code/:/home/code    </span><br><span class="line">    restart: always          </span><br><span class="line">    stdin_open: <span class="literal">true</span>    </span><br><span class="line">    tty: <span class="literal">true</span></span><br></pre></td></tr></table></figure></p>
-<p>同一目錄下執行…</p>
-<p><pre><code><br>docker-compose up -d</code></pre></p>
-<p><pre><code> </code></pre></p>
-<p>Check…</p>
-<p><pre><code><br>docker inspect jeff </code></pre></p>
-<p><pre><code> </code></pre></p>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
 
 <nav id="pagination">
   
@@ -973,7 +1077,7 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
   
   <div class="widget tag">
     <h3 class="title">Archives</h3>
-    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
   </div>
 
 
@@ -984,7 +1088,7 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
   
     <li><a href="/categories/Algorithm/">Algorithm</a><small>1</small></li>
   
-    <li><a href="/categories/Coding/">Coding</a><small>9</small></li>
+    <li><a href="/categories/Coding/">Coding</a><small>10</small></li>
   
     <li><a href="/categories/Tools/">Tools</a><small>2</small></li>
   
@@ -1009,7 +1113,7 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
   
     <li><a href="/tags/javascript/">javascript</a><small>1</small></li>
   
-    <li><a href="/tags/python/">python</a><small>2</small></li>
+    <li><a href="/tags/python/">python</a><small>3</small></li>
   
     <li><a href="/tags/supervisord/">supervisord</a><small>3</small></li>
   

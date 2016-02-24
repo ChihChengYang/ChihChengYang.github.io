@@ -1,0 +1,329 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<a href="https://github.com/ChihChengYang" target="_blank">
+<img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub">
+</a>
+  <meta charset="utf-8">
+  
+  <title>Access MySQL with Python | Jeff Yang</title>
+  <meta name="author" content="Jeff Yang">
+  
+  <meta name="description" content="c golang docker mysql">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Access MySQL with Python"/>
+  <meta property="og:site_name" content="Jeff Yang"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Jeff Yang" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">Jeff Yang</a></h1>
+  <h2><a href="/">Enjoy my coding life</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2016-02-24T10:00:00.000Z"><a href="/2016/02/24/Access-MySQL-with-Python/">2016-02-24</a></time>
+      
+      
+  
+    <h1 class="title">Access MySQL with Python</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Scan all json files in folder and then update or insert into DB…</p>
+<p>Usage  </p>
+<p><strong><em>Update or Insert</em></strong><br> python3 sm.py<br><strong><em>Delete</em></strong><br> python3 sm.py d TagID<br><strong><em>Query</em></strong><br> python3 sm.py q</p>
+<p><strong><em>Config.ini</em></strong><br>[JSON_FILES_PATH]<br>Json_Files_Path = ./json_files/<br>[DB_CONFIG]<br>DB_Ip = 10.62.8.10<br>DB_Usr = root<br>DB_Pws = 1234<br>DB_Name = dbName<br>DB_Table = tableName</p>
+<p><strong><em>/json_files/xx.json</em></strong><br>{<br>  “t1”: [<br>        {“TagID”: “th0”, “DevID”: “DevID0”, “ModelIdx”: “0”, “ModelType”: “device_name_0”},<br>        {“TagID”: “th1”, “DevID”: “DevID1”, “ModelIdx”: “1”, “ModelType”: “device_name_1”}<br>  ],<br>  “t2”: [<br>        {“TagID”: “th2”, “DevID”: “DevID2”, “ModelIdx”: “2”, “ModelType”: “device_name_2”}<br>  ]<br>}</p>
+<p><strong><em>DB struct</em></strong><br>dbName<br>tableName<br>TagID varchar(32) Primary Key<br>DevID varchar(32) Primary Key<br>ModelIdx  int(3)<br>ModelType varchar(30)<br>ModelOrder  tinyint(3) </p>
+<p><strong><em>sm.py</em></strong></p>
+<pre><code class="python"><span class="comment"># -*- coding: utf-8 -*-</span>
+<span class="keyword">import</span> MySQLdb <span class="keyword">as</span> mdb
+<span class="keyword">import</span> json
+<span class="keyword">import</span> os
+<span class="keyword">import</span> sys
+<span class="keyword">import</span> configparser
+
+SENSORS_MAPPING_PATH = <span class="string">"./json_files/"</span>
+DB_IP = <span class="string">'10.62.8.10'</span>
+DB_USR = <span class="string">'root'</span>
+DB_PWS = <span class="string">'1234'</span>
+DB_NAME = <span class="string">'dbName'</span>
+DB_TABLE = <span class="string">'tableName'</span>
+
+<span class="function"><span class="keyword">def</span> <span class="title">CheckDBPrimaryKey</span><span class="params">()</span>:</span>
+    con = mdb.connect(DB_IP, DB_USR, DB_PWS, DB_NAME);
+    <span class="keyword">with</span> con:
+        cur = con.cursor() 
+        cur.execute(<span class="string">"""
+        SELECT COUNT(1)
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = '%s'
+        AND TABLE_NAME = '%s'
+        AND COLUMN_KEY = 'PRI';"""</span>
+        % (DB_NAME, DB_TABLE) )
+        con.commit()
+        <span class="keyword">if</span> cur.fetchone()[<span class="number">0</span>]:
+            <span class="keyword">return</span> <span class="keyword">True</span>
+    <span class="keyword">return</span> <span class="keyword">False</span>
+
+<span class="function"><span class="keyword">def</span> <span class="title">UpdateDB</span><span class="params">(tagID, devID, modelIdx, modelType)</span>:</span>    
+    con = mdb.connect(DB_IP, DB_USR, DB_PWS, DB_NAME);
+    <span class="keyword">with</span> con:
+        cur = con.cursor()  
+        cur.execute(<span class="string">"""
+        INSERT INTO %s (TagID, DevID, ModelIdx, ModelType) VALUES ('%s','%s','%s','%s')                                  
+        ON DUPLICATE KEY UPDATE 
+        ModelIdx = VALUES(ModelIdx), ModelType = VALUES(ModelType);"""</span>  
+        % (DB_TABLE, tagID, devID, modelIdx, modelType) )        
+        con.commit()
+
+<span class="function"><span class="keyword">def</span> <span class="title">ParserFiles</span><span class="params">()</span>:</span>
+    files = os.listdir(SENSORS_MAPPING_PATH)
+    files_json = [i <span class="keyword">for</span> i <span class="keyword">in</span> files <span class="keyword">if</span> i.endswith(<span class="string">'.json'</span>)]
+    <span class="keyword">for</span> fj <span class="keyword">in</span> files_json:
+        <span class="keyword">with</span> open(os.path.join(SENSORS_MAPPING_PATH, fj) , <span class="string">'r'</span>) <span class="keyword">as</span> jsonData:
+            d = json.load(jsonData)         
+            <span class="keyword">for</span> v <span class="keyword">in</span> d.values():          
+                <span class="keyword">for</span> c <span class="keyword">in</span> range(len(v)):
+                    <span class="keyword">try</span>:
+                        <span class="keyword">if</span> v[c][<span class="string">'TagID'</span>]!=<span class="string">""</span> <span class="keyword">and</span> v[c][<span class="string">'DevID'</span>]!=<span class="string">""</span>: 
+                            UpdateDB(v[c][<span class="string">'TagID'</span>],v[c][<span class="string">'DevID'</span>],v[c][<span class="string">'ModelIdx'</span>],v[c][<span class="string">'ModelType'</span>]) 
+                        <span class="keyword">else</span>:  
+                            print(<span class="string">'TagID or DevID is None'</span>)     
+                    <span class="keyword">except</span> KeyError:
+                        print(<span class="string">'I got a KeyError'</span>)
+                        <span class="keyword">pass</span>
+                    <span class="keyword">except</span>:
+                        print(<span class="string">'I got a Error'</span>) 
+
+<span class="function"><span class="keyword">def</span> <span class="title">DeleteDB</span><span class="params">(tagID, devID=None)</span>:</span>    
+    con = mdb.connect(DB_IP, DB_USR, DB_PWS, DB_NAME);
+    <span class="keyword">with</span> con:
+        cur = con.cursor()   
+        cur.execute(<span class="string">"DELETE FROM  %s WHERE tagID = '%s'"</span> % (DB_TABLE,tagID))
+        con.commit() 
+        print(<span class="string">'Delete %s Finished !!!'</span>%(tagID))
+
+<span class="function"><span class="keyword">def</span> <span class="title">QueryDB</span><span class="params">()</span>:</span>  
+    con = mdb.connect(DB_IP, DB_USR, DB_PWS, DB_NAME);
+    <span class="keyword">with</span> con:
+        cur = con.cursor()  
+        cur.execute(<span class="string">"SELECT * FROM  %s"</span> % (DB_TABLE))
+        rows = cur.fetchall()
+        <span class="keyword">for</span> row <span class="keyword">in</span> rows:
+            print(row)
+
+<span class="function"><span class="keyword">def</span> <span class="title">Main</span><span class="params">()</span>:</span> 
+    <span class="keyword">global</span> SENSORS_MAPPING_PATH  
+    <span class="keyword">global</span> DB_IP  
+    <span class="keyword">global</span> DB_USR
+    <span class="keyword">global</span> DB_PWS
+    <span class="keyword">global</span> DB_NAME
+    <span class="keyword">global</span> DB_TABLE    
+    config = configparser.ConfigParser()
+    config.read(<span class="string">'Config.ini'</span>)
+    <span class="keyword">try</span>:
+        SENSORS_MAPPING_PATH = config.get(<span class="string">'JSON_FILES_PATH'</span>, <span class="string">'Json_Files_Path'</span>) 
+        DB_IP = config.get(<span class="string">'DB_CONFIG'</span>, <span class="string">'DB_Ip'</span>)  
+        DB_USR = config.get(<span class="string">'DB_CONFIG'</span>, <span class="string">'DB_Usr'</span>)
+        DB_PWS = config.get(<span class="string">'DB_CONFIG'</span>, <span class="string">'DB_Pws'</span>)
+        DB_NAME = config.get(<span class="string">'DB_CONFIG'</span>, <span class="string">'DB_Name'</span>)
+        DB_TABLE = config.get(<span class="string">'DB_CONFIG'</span>, <span class="string">'DB_Table'</span>)         
+        <span class="keyword">if</span> len(sys.argv) &lt; <span class="number">2</span>:
+            <span class="keyword">if</span> CheckDBPrimaryKey():
+                ParserFiles()   
+            <span class="keyword">else</span>:
+                print(<span class="string">'ERROR!!! DB Primary Key NOT FOUND~~'</span>)
+        <span class="keyword">else</span>:
+            <span class="keyword">if</span> sys.argv[<span class="number">1</span>] == <span class="string">'d'</span>:         
+                DeleteDB(sys.argv[<span class="number">2</span>])           
+            <span class="keyword">if</span> sys.argv[<span class="number">1</span>] == <span class="string">'q'</span>:
+                QueryDB()
+    <span class="keyword">except</span>:
+        print(<span class="string">'ERROR INI!!!'</span> )
+
+<span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:
+    Main()
+</code></pre>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/Coding/">Coding</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/python/">python</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">留言</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://chihchengyang.github.io/2016/02/24/Access-MySQL-with-Python/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜尋">
+    <input type="hidden" name="q" value="site:chihchengyang.github.io">
+  </form>
+</div>
+
+  
+  <div class="widget tag">
+    <h3 class="title">Archives</h3>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分類</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/Algorithm/">Algorithm</a><small>1</small></li>
+  
+    <li><a href="/categories/Coding/">Coding</a><small>10</small></li>
+  
+    <li><a href="/categories/Tools/">Tools</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">標籤</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/android/">android</a><small>1</small></li>
+  
+    <li><a href="/tags/c-c/">c/c++</a><small>1</small></li>
+  
+    <li><a href="/tags/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/tags/golang/">golang</a><small>4</small></li>
+  
+    <li><a href="/tags/ipmi/">ipmi</a><small>1</small></li>
+  
+    <li><a href="/tags/javascript/">javascript</a><small>1</small></li>
+  
+    <li><a href="/tags/python/">python</a><small>3</small></li>
+  
+    <li><a href="/tags/supervisord/">supervisord</a><small>3</small></li>
+  
+    <li><a href="/tags/tools/">tools</a><small>3</small></li>
+  
+    <li><a href="/tags/vm/">vm</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Jeff Yang
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
