@@ -6,7 +6,7 @@
 </a>
   <meta charset="utf-8">
   
-  <title>Phase Stretch Transform | Jeff Yang</title>
+  <title>Regressor test with Skflow and Sklearn | Jeff Yang</title>
   <meta name="author" content="Jeff Yang">
   
   <meta name="description" content="c golang docker mysql">
@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="Phase Stretch Transform"/>
+  <meta property="og:title" content="Regressor test with Skflow and Sklearn"/>
   <meta property="og:site_name" content="Jeff Yang"/>
 
   
@@ -54,21 +54,97 @@
     <header>
       
         <div class="icon"></div>
-        <time datetime="2016-02-17T10:40:12.000Z"><a href="/2016/02/17/Phase-Stretch-Transform/">2016-02-17</a></time>
+        <time datetime="2016-03-02T10:00:00.000Z"><a href="/2016/03/02/Regressor-Test-With-Skflow-And-Sklearn/">2016-03-02</a></time>
       
       
   
-    <h1 class="title">Phase Stretch Transform</h1>
+    <h1 class="title">Regressor test with Skflow and Sklearn</h1>
   
 
     </header>
     <div class="entry">
       
-        <p>PST or Phase Stretch Transform is an operator that finds features in an image. PST takes an intensity image I as its input, and returns a binary image out of the same size as I, with 1’s where the function finds sharp transitions in I and 0’s elsewhere. <a href="https://en.wikipedia.org/wiki/Phase_stretch_transform" target="_blank" rel="external">https://en.wikipedia.org/wiki/Phase_stretch_transform</a><br><a href="https://github.com/JalaliLabUCLA/Image-feature-detection-using-Phase-Stretch-Transform" title="PST Source Code" target="_blank" rel="external">PST Source Code</a> </p>
-<p>Searched and found a python version of PST.<br><a href="https://github.com/ChihChengYang/pst" title="python PST" target="_blank" rel="external">python PST</a><br>Try to run that. Results are as below:</p>
-<h2 id="LPF_3D0-21__2C_Morph_flag_3DFalse"><a href="#LPF_3D0-21__2C_Morph_flag_3DFalse" class="headerlink" title="LPF=0.21 , Morph_flag=False"></a><em>LPF=0.21 , Morph_flag=False</em></h2><img src="/2016/02/17/Phase-Stretch-Transform/Screenshot1.png" alt="LPF=0.21 , Morph_flag=False" title="LPF=0.21 , Morph_flag=False">
-<h2 id="LPF_3D0-08__2C_Morph_flag_3DTrue"><a href="#LPF_3D0-08__2C_Morph_flag_3DTrue" class="headerlink" title="LPF=0.08 , Morph_flag=True"></a><em>LPF=0.08 , Morph_flag=True</em></h2><img src="/2016/02/17/Phase-Stretch-Transform/Screenshot2.png" alt="LPF=0.08 , Morph_flag=True" title="LPF=0.08 , Morph_flag=True">
+        <p>Some regressor tests with <a href="https://github.com/tensorflow/skflow" title="skflow" target="_blank" rel="external">skflow</a> and <a href="http://scikit-learn.org/" title="sklearn" target="_blank" rel="external">sklearn</a></p>
+<p><strong><em>regressor.py</em></strong></p>
+<pre><code class="python"><span class="comment"># -*- coding: utf-8 -*-</span>
+<span class="keyword">import</span> pandas
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">from</span> pylab <span class="keyword">import</span> savefig
+<span class="keyword">from</span> sklearn <span class="keyword">import</span> datasets, cross_validation, metrics
+<span class="keyword">from</span> sklearn <span class="keyword">import</span> preprocessing
 
+<span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> SVR
+<span class="keyword">from</span> sklearn <span class="keyword">import</span> ensemble
+<span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> RandomForestRegressor
+<span class="keyword">import</span> skflow
+<span class="comment">########################################################</span>
+<span class="comment"># Set data</span>
+boston = datasets.load_boston()
+X, y = boston.data, boston.target
+<span class="comment"># Split dataset into train / test</span>
+X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y,
+    test_size=<span class="number">0.1</span>, random_state=<span class="number">42</span>)
+scaler = preprocessing.StandardScaler()
+X_train = scaler.fit_transform(X_train)
+<span class="comment">########################################################</span>
+<span class="comment"># Fit regression model</span>
+<span class="comment"># 1. SVR </span>
+regressor = SVR(kernel=<span class="string">'rbf'</span>, C=<span class="number">1000</span>, gamma=<span class="string">'auto'</span>)
+<span class="comment"># 2. Gradient Boosting</span>
+<span class="string">"""
+params = {'n_estimators': 500, 'max_depth': 4, 'min_samples_split': 1,
+          'learning_rate': 0.01, 'loss': 'ls'}
+regressor = ensemble.GradientBoostingRegressor(**params)
+"""</span>
+<span class="comment"># 3. Random Forest</span>
+<span class="string">"""
+regressor = RandomForestRegressor(n_estimators=200, min_samples_split=1)
+"""</span>
+<span class="comment"># 4. DNN</span>
+<span class="string">"""
+regressor = skflow.TensorFlowDNNRegressor(hidden_units=[10, 10, 10],
+    steps=20000, learning_rate=0.01, batch_size=13)
+"""</span>        
+<span class="comment">########################################################</span>
+<span class="comment"># Train and Predict</span>
+regressor.fit(X_train, y_train) 
+score = metrics.mean_squared_error(regressor.predict(scaler.fit_transform(X_test)), y_test)
+X_ty = regressor.predict(scaler.fit_transform(X_train))
+score1 = metrics.mean_squared_error(X_ty, y_train)
+
+print(<span class="string">'Test MSE: {0:f}'</span>.format(score))
+print(<span class="string">'Train MSE: {0:f}'</span>.format(score1))
+<span class="comment">########################################################</span>
+<span class="comment"># Look at the results</span>
+<span class="string">"""    
+fig,ax = plt.subplots()
+ax.scatter(y_train, X_ty)
+ax.plot([y_train.min(), y_train.max()], [y_train.min(), y_train.max()], 'k--', lw=4)
+ax.set_xlabel('Measured')
+ax.set_ylabel('Predicted')
+plt.show()  
+"""</span>
+<span class="string">"""        
+savefig('result.png') 
+"""</span>
+</code></pre>
+<img src="/2016/03/02/Regressor-Test-With-Skflow-And-Sklearn/result.png" alt="Look at the results" title="Look at the results">
+<p><strong><em>Data preprocessing</em></strong><br>pw.csv from <a href="http://archive.ics.uci.edu/ml/datasets/Individual+household+electric+power+consumption" title="Individual household electric power consumption Data Set" target="_blank" rel="external">Data Set</a></p>
+<p>Date,Time,Global_active_power,Global_reactive_power,Voltage,Global_intensity,Sub_metering_1,<br>Sub_metering_2,Sub_metering_3<br>16/12/2006,17:24:00,4.216,0.418,234.840,18.400,0.000,1.000,17.000<br>…</p>
+<pre><code>data = pandas.read_csv(&apos;pw.csv&apos;)
+X = data[[&apos;Date&apos;,&apos;Time&apos;,&apos;Global_reactive_power&apos;,&apos;Voltage&apos;,&apos;Global_intensity&apos;,&apos;Sub_metering_1&apos;,
+&apos;Sub_metering_2&apos;,&apos;Sub_metering_3&apos;]]
+y = data[&apos;Global_active_power&apos;]
+
+D = (pandas.to_datetime(X[&quot;Date&quot;], format=&quot;%d/%m/%Y&quot;))
+X[&quot;Month&quot;] = D.apply(lambda x: x.month)
+X = X.drop([&quot;Date&quot;], axis=1)
+
+T = (pandas.to_datetime(X[&quot;Time&quot;], format=&quot;%H:%M:%S&quot;))
+X[&quot;Hour&quot;] = T.apply(lambda x: x.hour)
+X = X.drop([&quot;Time&quot;], axis=1)
+</code></pre>
       
     </div>
     <footer>
@@ -76,7 +152,7 @@
         
   
   <div class="categories">
-    <a href="/categories/Algorithm/">Algorithm</a>
+    <a href="/categories/Machine-Learning/">Machine Learning</a>
   </div>
 
         
@@ -125,7 +201,7 @@
   }(document, 'script', 'facebook-jssdk'));
 </script>
 
-<div class="fb-comments" data-href="http://chihchengyang.github.io/2016/02/17/Phase-Stretch-Transform/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+<div class="fb-comments" data-href="http://chihchengyang.github.io/2016/03/02/Regressor-Test-With-Skflow-And-Sklearn/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
       
   
 </section>
