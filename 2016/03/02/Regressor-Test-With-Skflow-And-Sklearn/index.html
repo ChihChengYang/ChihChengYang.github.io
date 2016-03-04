@@ -110,7 +110,7 @@ regressor = skflow.TensorFlowDNNRegressor(hidden_units=[10, 10, 10],
 <span class="comment"># Train and Predict</span>
 regressor.fit(X_train, y_train) 
 score = metrics.mean_squared_error(regressor.predict(scaler.transform(X_test)), y_test)
-X_ty = regressor.predict(scaler.transform(X_train))
+X_ty = regressor.predict(X_train)
 score1 = metrics.mean_squared_error(X_ty, y_train)
 
 print(<span class="string">'Test MSE: {0:f}'</span>.format(score))
