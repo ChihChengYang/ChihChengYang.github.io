@@ -1,0 +1,219 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<a href="https://github.com/ChihChengYang" target="_blank">
+<img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub">
+</a>
+  <meta charset="utf-8">
+  
+  <title>Regressor test with Skflow and Sklearn - 2 | Jeff Yang</title>
+  <meta name="author" content="Jeff Yang">
+  
+  <meta name="description" content="c golang docker mysql">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Regressor test with Skflow and Sklearn - 2"/>
+  <meta property="og:site_name" content="Jeff Yang"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Jeff Yang" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">Jeff Yang</a></h1>
+  <h2><a href="/">Enjoy my coding life</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2016-03-16T10:00:00.000Z"><a href="/2016/03/16/Regressor-Test-With-Skflow-And-Sklearn-2/">2016-03-16</a></time>
+      
+      
+  
+    <h1 class="title">Regressor test with Skflow and Sklearn - 2</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Test two different types of learning methods - offline learning and online learning</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> threading <span class="keyword">import</span> Timer </span><br><span class="line"><span class="keyword">import</span> signal, sys, time, threading </span><br><span class="line"><span class="keyword">import</span> configparser</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime</span><br><span class="line"><span class="comment">###</span></span><br><span class="line"><span class="keyword">import</span> pandas</span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> datasets, cross_validation, metrics</span><br><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> preprocessing </span><br><span class="line"><span class="comment">###</span></span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> PassiveAggressiveRegressor</span><br><span class="line"><span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> SVR   </span><br><span class="line"><span class="comment">###############################################################################</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PredictData</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, partial_fit_flag=True)</span>:</span>      </span><br><span class="line">        self.partial_fit_flag = partial_fit_flag</span><br><span class="line">        self.regressor = <span class="keyword">None</span></span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fit</span><span class="params">(self, X_train, y_train)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> self.partial_fit_flag:</span><br><span class="line">            self.regressor.partial_fit(X_train, y_train)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            self.regressor.fit(X_train, y_train)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">train</span><span class="params">(self, X_train, y_train)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> self.regressor == <span class="keyword">None</span>:  </span><br><span class="line">            <span class="keyword">if</span> self.partial_fit_flag:</span><br><span class="line">                self.regressor = PassiveAggressiveRegressor(random_state=<span class="number">42</span>)</span><br><span class="line">                <span class="comment"># regressor = SGDRegressor(random_state=42)</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                self.regressor = SVR(kernel=<span class="string">'rbf'</span>, C=<span class="number">1000</span>, gamma=<span class="number">0.1</span>)</span><br><span class="line">            self.fit(X_train, y_train)    </span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">if</span> self.partial_fit_flag:</span><br><span class="line">                self.fit(X_train, y_train)</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">predict</span><span class="params">(self, X_test)</span>:</span>    </span><br><span class="line">        <span class="keyword">return</span> self.regressor.predict(X_test)    </span><br><span class="line">   </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">metrics_errror</span><span class="params">(self, y_predict, y_test)</span>:</span> </span><br><span class="line">        <span class="keyword">return</span> metrics.mean_squared_error(y_predict,y_test)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">save_model</span><span class="params">(self, name)</span>:</span>    </span><br><span class="line">        <span class="keyword">if</span> self.regressor != <span class="keyword">None</span>:</span><br><span class="line">            <span class="keyword">with</span> open(name, <span class="string">'wb'</span>) <span class="keyword">as</span> m:</span><br><span class="line">                pickle.dump(self.regressor, m) </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">load_model</span><span class="params">(self, name)</span>:</span>    </span><br><span class="line">        <span class="keyword">with</span> open(name, <span class="string">'rb'</span>) <span class="keyword">as</span> m:</span><br><span class="line">            self.regressor = pickle.load(m) </span><br><span class="line"><span class="comment">###############################################################################</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ProcessData</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, scaler_partialfit_flag=True)</span>:</span>      </span><br><span class="line">        self.scaler_partialfit_flag = scaler_partialfit_flag</span><br><span class="line">        self.scaler = <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fit</span><span class="params">(self, X_train)</span>:</span></span><br><span class="line">        <span class="comment">#if self.scaler_partialfit_flag:</span></span><br><span class="line">            self.scaler.partial_fit(X_train)          </span><br><span class="line">        <span class="comment">#else:</span></span><br><span class="line">          <span class="comment">#  self.scaler.fit(X_train)</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">train_test_split_scale</span><span class="params">(self, data, target, testSize=<span class="number">0</span>)</span>:</span></span><br><span class="line">        X_train, X_test, y_train, y_test = cross_validation.train_test_split(data, target,</span><br><span class="line">            test_size=testSize, random_state=<span class="number">42</span>)        </span><br><span class="line">        <span class="keyword">if</span> self.scaler == <span class="keyword">None</span>:</span><br><span class="line">            self.scaler = preprocessing.MinMaxScaler(feature_range=(-<span class="number">1</span>, <span class="number">1</span>)) </span><br><span class="line">		    <span class="comment"># preprocessing.StandardScaler()                 </span></span><br><span class="line">        self.fit(X_train)        </span><br><span class="line">        <span class="keyword">if</span> len(X_test) == <span class="number">0</span>:                    </span><br><span class="line">            X_train = self.scaler.transform(X_train)</span><br><span class="line">            <span class="keyword">return</span> X_train, y_train</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            X_train = self.scaler.transform(X_train)</span><br><span class="line">            X_test = self.scaler.transform(X_test)</span><br><span class="line">            <span class="keyword">return</span> X_train, y_train, X_test, y_test  </span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">validate_date</span><span class="params">(self,datetime_string)</span>:</span></span><br><span class="line">        <span class="keyword">try</span>:  </span><br><span class="line">            <span class="keyword">return</span> datetime.strptime(datetime_string,<span class="string">"%Y-%m-%d %H:%M:%S"</span>)</span><br><span class="line">        <span class="keyword">except</span> ValueError:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">   </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_dateTime</span><span class="params">(self,datetime_string)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> self.validate_date(datetime_string) != <span class="keyword">False</span>:            </span><br><span class="line">            configW = configparser.RawConfigParser()</span><br><span class="line">            configW.optionxform = str            </span><br><span class="line">            configW.add_section(<span class="string">'DB'</span>)</span><br><span class="line">            configW.set(<span class="string">'DB'</span>, <span class="string">'LatestTime'</span>, datetime_string)         </span><br><span class="line">            <span class="keyword">with</span> open(<span class="string">'DB.ini'</span>, <span class="string">'w'</span>) <span class="keyword">as</span> configfile:</span><br><span class="line">                configW.write(configfile)   </span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_dateTime</span><span class="params">(self)</span>:</span>        </span><br><span class="line">        configR = configparser.RawConfigParser()</span><br><span class="line">        configR.read(<span class="string">"DB.ini"</span>)</span><br><span class="line">        db_time=configR.get(<span class="string">"DB"</span>,<span class="string">"LatestTime"</span>) </span><br><span class="line">        <span class="keyword">if</span> self.validate_date(db_time) == <span class="keyword">False</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">        <span class="keyword">else</span>:    </span><br><span class="line">            <span class="keyword">return</span> db_time</span><br><span class="line">   </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">load_data_from_db</span><span class="params">(self, alwaysLatestFlag=False)</span>:</span></span><br><span class="line">        <span class="keyword">pass</span> </span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">load_data_from_file</span><span class="params">(self, path)</span>:</span></span><br><span class="line">        <span class="keyword">try</span>:	       </span><br><span class="line">            data = pandas.read_csv(path)</span><br><span class="line">            X = data[[<span class="string">'Date'</span>,<span class="string">'Time'</span>,<span class="string">'Global_reactive_power'</span>,<span class="string">'Voltage'</span>,<span class="string">'Global_intensity'</span>,<span class="string">'Sub_metering_1'</span>,<span class="string">'Sub_metering_2'</span>,<span class="string">'Sub_metering_3'</span>]]</span><br><span class="line">            y = data[<span class="string">'Global_active_power'</span>]</span><br><span class="line"> </span><br><span class="line">            D = pandas.to_datetime(X[<span class="string">"Date"</span>], format=<span class="string">"%d/%m/%Y"</span>)</span><br><span class="line">            X[<span class="string">"Month"</span>] = D.apply(<span class="keyword">lambda</span> x: x.month)</span><br><span class="line">            X = X.drop([<span class="string">"Date"</span>], axis=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">            T = pandas.to_datetime(X[<span class="string">"Time"</span>], format=<span class="string">"%H:%M:%S"</span>)</span><br><span class="line">            X[<span class="string">"Hour"</span>] = T.apply(<span class="keyword">lambda</span> x: x.hour)</span><br><span class="line">            X = X.drop([<span class="string">"Time"</span>], axis=<span class="number">1</span>) </span><br><span class="line">            <span class="keyword">return</span> X,y</span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            print(<span class="string">'ERROR load_data_from_file!!!'</span> )  </span><br><span class="line">            <span class="keyword">return</span> [],[]  </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">save_scaler</span><span class="params">(self, scalerName)</span>:</span>  </span><br><span class="line">        <span class="keyword">if</span> self.scaler != <span class="keyword">None</span>:</span><br><span class="line">            <span class="keyword">with</span> open(scalerName, <span class="string">'wb'</span>) <span class="keyword">as</span> s:</span><br><span class="line">                pickle.dump(self.scaler, s)  </span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">load_scaler</span><span class="params">(self, scalerName)</span>:</span>  </span><br><span class="line">        <span class="keyword">with</span> open(scalerName, <span class="string">'rb'</span>) <span class="keyword">as</span> s:</span><br><span class="line">            self.scaler = pickle.load(s)             </span><br><span class="line"><span class="comment">###############################################################################</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Online_Learning_Train</span><span class="params">()</span>:</span>       </span><br><span class="line">    pd = ProcessData()</span><br><span class="line">    X,y = pd.load_data_from_file(<span class="string">'pw3.csv'</span>)  </span><br><span class="line">    Xt,Xyt = pd.train_test_split_scale(X,y) </span><br><span class="line">    pdd = PredictData()</span><br><span class="line">    pdd.train(Xt, Xyt)    </span><br><span class="line">    Xy_predict = pdd.predict(Xt)</span><br><span class="line">    scoreX  = pdd.metrics_errror(Xy_predict,Xyt)     </span><br><span class="line">    pd.save_scaler(<span class="string">'scaler.pkl'</span>)</span><br><span class="line">    pdd.save_model(<span class="string">'model.pkl'</span>)</span><br><span class="line">    print(<span class="string">'MSE: &#123;0:f&#125;'</span>.format(scoreX))</span><br><span class="line">	</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Online_Learning_Test</span><span class="params">()</span>:</span>  </span><br><span class="line">    pd = ProcessData()</span><br><span class="line">    pd.load_scaler(<span class="string">'scaler.pkl'</span>)</span><br><span class="line">    X,y = pd.load_data_from_file(<span class="string">'pw5.csv'</span>)  </span><br><span class="line">    Xt,Xyt = pd.train_test_split_scale(X,y)</span><br><span class="line">    pdd = PredictData()</span><br><span class="line">    pdd.load_model(<span class="string">'model.pkl'</span>) </span><br><span class="line">    pdd.train(Xt, Xyt)   </span><br><span class="line">    Xy_predict = pdd.predict(Xt)</span><br><span class="line">    scoreX  = pdd.metrics_errror(Xy_predict,Xyt)</span><br><span class="line">    print(<span class="string">'MSE: &#123;0:f&#125;'</span>.format(scoreX))</span><br><span class="line">	</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Offline_Learning_Train</span><span class="params">()</span>:</span>  </span><br><span class="line">    pd = ProcessData()</span><br><span class="line">    X,y = pd.load_data_from_file(<span class="string">'pw.csv'</span>)   </span><br><span class="line">    Xt,Xyt = pd.train_test_split_scale(X,y)    </span><br><span class="line">    pdd = PredictData(<span class="keyword">False</span>)</span><br><span class="line">    pdd.train(Xt, Xyt)</span><br><span class="line">    Xy_predict = pdd.predict(Xt)</span><br><span class="line">    scoreX  = pdd.metrics_errror(Xy_predict,Xyt)</span><br><span class="line">    pd.save_scaler(<span class="string">'scaler.pkl'</span>)</span><br><span class="line">    pdd.save_model(<span class="string">'model.pkl'</span>)</span><br><span class="line">    print(<span class="string">'MSE: &#123;0:f&#125;'</span>.format(scoreX))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Offline_Learning_Test</span><span class="params">()</span>:</span>  </span><br><span class="line">    pd = ProcessData()</span><br><span class="line">    pd.load_scaler(<span class="string">'scaler.pkl'</span>)</span><br><span class="line">    X,y = pd.load_data_from_file(<span class="string">'pw5.csv'</span>)  </span><br><span class="line">    Xt,Xyt = pd.train_test_split_scale(X,y)</span><br><span class="line">    pdd = PredictData(<span class="keyword">False</span>)</span><br><span class="line">    pdd.load_model(<span class="string">'model.pkl'</span>) </span><br><span class="line">    Xy_predict = pdd.predict(Xt)</span><br><span class="line">    scoreX  = pdd.metrics_errror(Xy_predict,Xyt)</span><br><span class="line">    print(<span class="string">'MSE: &#123;0:f&#125;'</span>.format(scoreX))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Main</span><span class="params">()</span>:</span></span><br><span class="line">    Online_Learning_Train()</span><br><span class="line">    Online_Learning_Test()</span><br><span class="line">    <span class="string">'''   </span><br><span class="line">    Offline_Learning_Train()</span><br><span class="line">    Offline_Learning_Test()</span><br><span class="line">    '''</span></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    Main()</span><br></pre></td></tr></table></figure>
+<p><strong><em>Data preprocessing</em></strong><br>pw.csv from <a href="http://archive.ics.uci.edu/ml/datasets/Individual+household+electric+power+consumption" title="Individual household electric power consumption Data Set" target="_blank" rel="external">Data Set</a></p>
+<p>Date,Time,Global_active_power,Global_reactive_power,Voltage,Global_intensity,Sub_metering_1,<br>Sub_metering_2,Sub_metering_3<br>16/12/2006,17:24:00,4.216,0.418,234.840,18.400,0.000,1.000,17.000</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/Machine-Learning/">Machine Learning</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/python/">python</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">留言</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://chihchengyang.github.io/2016/03/16/Regressor-Test-With-Skflow-And-Sklearn-2/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜尋">
+    <input type="hidden" name="q" value="site:chihchengyang.github.io">
+  </form>
+</div>
+
+  
+  <div class="widget tag">
+    <h3 class="title">Archives</h3>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">2016.03</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分類</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/Algorithm/">Algorithm</a><small>1</small></li>
+  
+    <li><a href="/categories/Coding/">Coding</a><small>10</small></li>
+  
+    <li><a href="/categories/Machine-Learning/">Machine Learning</a><small>2</small></li>
+  
+    <li><a href="/categories/Tools/">Tools</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">標籤</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/android/">android</a><small>1</small></li>
+  
+    <li><a href="/tags/c-c/">c/c++</a><small>1</small></li>
+  
+    <li><a href="/tags/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/tags/golang/">golang</a><small>4</small></li>
+  
+    <li><a href="/tags/ipmi/">ipmi</a><small>1</small></li>
+  
+    <li><a href="/tags/javascript/">javascript</a><small>1</small></li>
+  
+    <li><a href="/tags/python/">python</a><small>5</small></li>
+  
+    <li><a href="/tags/supervisord/">supervisord</a><small>3</small></li>
+  
+    <li><a href="/tags/tools/">tools</a><small>3</small></li>
+  
+    <li><a href="/tags/vm/">vm</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Jeff Yang
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
