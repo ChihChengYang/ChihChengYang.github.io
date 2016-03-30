@@ -55,6 +55,149 @@
     <header>
       
         <div class="icon"></div>
+        <time datetime="2016-01-08T10:40:12.000Z"><a href="/2016/01/08/Docker-compose-4/">2016-01-08</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2016/01/08/Docker-compose-4/">Docker-compose 4</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>在[docker-compose-3]中完成一個新的image建立</p>
+<pre><code>
+$ docker images 
+REPOSITORY TAG IMAGE ID CREATED VIRTUAL SIZE 
+code_icdc latest 220f9d464171 17 hours ago 304.4 MB
+</code></pre>
+
+<p>可以更改image tag</p>
+<pre><code>
+$ docker tag code_icdc:latest code_icdc:v.01
+$ docker images 
+REPOSITORY TAG IMAGE ID CREATED VIRTUAL SIZE
+code_icdc latest 220f9d464171 17 hours ago 304.4 MB
+code_icdc v.01 220f9d464171 17 hours ago 304.4 MB
+</code></pre>
+
+<p>接著,</p>
+<p>可以利用dockerfile和compose 使這個新建的image code_icdc 複製產生多組同樣功能images…</p>
+<p>準備一個dockerfile</p>
+<p><strong>Dockerfile2</strong></p>
+<pre><code>
+FROM code_icdc:v.01
+MAINTAINER Jeff Yang
+ENV IPMI_GET_IP_S 1
+ENV IPMI_GET_IP_E 10
+</code></pre>
+
+<p>這裡設定一組Environment Variables,來測試複製的image</p>
+<p><strong>docker-image.yml</strong></p>
+<pre><code>
+build:
+ container_name: envTest
+ build: ./
+ dockerfile: Dockerfile2
+ ports: 
+     - 9083:9080
+ volumes:
+     - /home/jeff/code/test_dockerEnv:/home/code/test_dockerEnv
+ restart: always 
+ stdin_open: true
+ tty: true
+</code></pre>
+
+<pre><code>
+$ docker-compose up -d -f docker-image.yml
+</code></pre>
+
+<p>完成image後,檢視現在多了一個新的testdockerenv_build image</p>
+<pre><code>
+$ docker images 
+REPOSITORY TAG IMAGE ID CREATED VIRTUAL SIZE
+testdockerenv_build latest 48e05900d52b 7 seconds ago 304.4 MB
+code_icdc latest 220f9d464171 17 hours ago 304.4 MB
+code_icdc v.01 220f9d464171 17 hours ago 304.4 MB
+</code></pre>
+
+<p>測試程式,簡單的印出環境變數</p>
+<p><strong>goEnv.go</strong><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> ( </span><br><span class="line"> <span class="string">"fmt"</span></span><br><span class="line"> <span class="string">"os"</span></span><br><span class="line"> <span class="string">"bufio"</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">func</span> main() &#123;</span><br><span class="line"> fmt.Println(<span class="string">"IPMI_GET_IP_S:"</span>, os.Getenv(<span class="string">"IPMI_GET_IP_S"</span>))</span><br><span class="line"> fmt.Println(<span class="string">"IPMI_GET_IP_E:"</span>, os.Getenv(<span class="string">"IPMI_GET_IP_E"</span>))</span><br><span class="line"> <span class="comment">//getchar()</span></span><br><span class="line"> reader := bufio.NewReader(os.Stdin)</span><br><span class="line"> reader.ReadString(<span class="string">'\n'</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>接著,進入container</p>
+<pre><code>
+$ docker exec -it envTest bash
+</code></pre>
+
+<p>查看supervisord是否有啟動</p>
+<pre><code>
+[root@a6d077cfdd7c home]# supervisorctl status
+ipmi RUNNING pid 9, uptime 0:00:42
+ipmi_monitor RUNNING pid 22, uptime 0:00:36
+ipmicdc:0 STOPPED Not started
+ipmicdc:1 STOPPED Not started
+ipmicdc:2 STOPPED Not started
+ipmicdc:3 STOPPED Not started
+ipmicdc:4 STOPPED Not started
+</code></pre>
+
+<p>執行程式,將印出環境變數</p>
+<pre><code>
+[root@a6d077cfdd7c home]# cd ./code/test_dockerEnv/
+[root@a6d077cfdd7c test_dockerEnv]# ./goEnv
+IPMI_GET_IP_S: 1
+IPMI_GET_IP_E: 10
+[root@a6d077cfdd7c test_dockerEnv]# echo $IPMI_GET_IP_E
+10
+</code></pre>
+
+<p>若不需要產生新image,</p>
+<p>也可以直接執行docker run,利用現有image產生container</p>
+<pre><code>
+$ docker run -e "IPMI_GET_IP_S=1" -e "IPMI_GET_IP_E=10" -itd --name envTest --restart=always -p 9083:9080 -v /home/jeff/code/test_dockerEnv:/home/code/test_dockerEnv code_icdc:v.01 
+90cd3ba79bc4a9b705c823e0ba488e04ad7efc07c7181ef6b28cd14e5dc1d31c
+</code></pre>
+<pre><code>
+$ docker images
+REPOSITORY TAG IMAGE ID CREATED VIRTUAL SIZE
+code_icdc latest 220f9d464171 18 hours ago 304.4 MB
+code_icdc v.01 220f9d464171 18 hours ago 304.4 MB
+docker.io/centos centos7 60e65a8e4030 13 days ago 196.6 MB
+docker.io/centos latest 60e65a8e4030 13 days ago 196.6 MB
+</code></pre>
+
+<p>相同步驟確認環境變數</p>
+<pre><code>
+$ docker ps
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+90cd3ba79bc4 code_icdc:v.01 "/bin/sh -c $MAJOR_PA" 17 seconds ago Up 16 seconds 0.0.0.0:9083->9080/tcp envTest
+
+$ docker exec -it envTest bash
+[root@90cd3ba79bc4 /]# cd /home/code/test_dockerEnv/
+[root@90cd3ba79bc4 test_dockerEnv]# ./goEnv
+IPMI_GET_IP_S: 1
+IPMI_GET_IP_E: 10
+</code></pre>
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
         <time datetime="2016-01-07T10:40:12.000Z"><a href="/2016/01/07/Docker-compose-3/">2016-01-07</a></time>
       
       
@@ -407,7 +550,7 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
   
   <div class="widget tag">
     <h3 class="title">Archives</h3>
-    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">2016.03</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">2016.03</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
   </div>
 
 
@@ -418,7 +561,7 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
   
     <li><a href="/categories/Algorithm/">Algorithm</a><small>1</small></li>
   
-    <li><a href="/categories/Coding/">Coding</a><small>10</small></li>
+    <li><a href="/categories/Coding/">Coding</a><small>11</small></li>
   
     <li><a href="/categories/Machine-Learning/">Machine Learning</a><small>2</small></li>
   
@@ -437,15 +580,21 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
   
     <li><a href="/tags/c-c/">c/c++</a><small>1</small></li>
   
+    <li><a href="/tags/c3-js/">c3.js</a><small>1</small></li>
+  
+    <li><a href="/tags/django/">django</a><small>1</small></li>
+  
     <li><a href="/tags/docker/">docker</a><small>6</small></li>
   
     <li><a href="/tags/golang/">golang</a><small>4</small></li>
   
+    <li><a href="/tags/influxDB/">influxDB</a><small>1</small></li>
+  
     <li><a href="/tags/ipmi/">ipmi</a><small>1</small></li>
   
-    <li><a href="/tags/javascript/">javascript</a><small>1</small></li>
+    <li><a href="/tags/javascript/">javascript</a><small>2</small></li>
   
-    <li><a href="/tags/python/">python</a><small>5</small></li>
+    <li><a href="/tags/python/">python</a><small>6</small></li>
   
     <li><a href="/tags/supervisord/">supervisord</a><small>3</small></li>
   
