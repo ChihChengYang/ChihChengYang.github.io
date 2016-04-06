@@ -6,7 +6,7 @@
 </a>
   <meta charset="utf-8">
   
-  <title>第 2 页 | Jeff Yang</title>
+  <title>Страница 2 | Jeff Yang</title>
   <meta name="author" content="Jeff Yang">
   
   <meta name="description" content="c golang docker mysql">
@@ -49,6 +49,130 @@
 </header>
   <div id="content" class="inner">
     <div id="main-col" class="alignleft"><div id="wrapper">
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2016-01-09T10:40:12.000Z"><a href="/2016/01/09/Docker-Supervisord/">2016-01-09</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2016/01/09/Docker-Supervisord/">Docker &amp; Supervisord</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h2 id="Host_and_inside_docker_u2019_containers_all_use_supervisord_to_control_processes_u2026"><a href="#Host_and_inside_docker_u2019_containers_all_use_supervisord_to_control_processes_u2026" class="headerlink" title="Host and inside docker’ containers all use supervisord to control processes…"></a>Host and inside docker’ containers all use supervisord to control processes…</h2><p>Host : CentOS 7</p>
+<p><strong>Install docker</strong></p>
+<font color="red">Notice:<br></font><br><font color="red">1. Enable IP forwarding in Linux<br></font><br><font color="blue">$ sysctl net.ipv4.ip_forward<br></font><br><font color="red">net.ipv4.ip_forward = 0<br></font><br><font color="blue">$ sysctl -w net.ipv4.ip_forward=1<br></font><br><font color="blue">$ service docker restart<br></font><br><font color="red">2. Cannot open directory .: Permission denied<br></font><br><font color="blue">$ chcon -Rt svirt_sandbox_file_t ./code/<br></font>
+
+<p><strong>Install supervisord</strong></p>
+<font color="red">Notice:<br></font>
+
+<font color="red">1. Supervisord.conf</font>
+
+<p>default file is indeed /etc/supervisor.conf</p>
+<font color="red">2.Starting supervisor: Unlinking stale socket /var/run/supervisor.sock<br></font><br><font color="blue">$ pip install meld3==0.6.7<br></font>
+
+<p>find / -name supervisor.sock</p>
+<p>unlink /…/supervisor.sock </p>
+<font color="blue">$ unlink /var/run/supervisor.sock</font>
+
+<p><strong>Install golang</strong></p>
+<font color="red">Notice:<br></font><br><font color="red">1. GOPATH=”….”<br></font><br><font color="blue">$ vi ~/.bashrc<br></font>
+
+<p>Add</p>
+<p>export GOPATH=”/home/Go”    </p>
+<hr>
+<h3 id="A-_Docker_commands"><a href="#A-_Docker_commands" class="headerlink" title="A. Docker commands"></a>A. Docker commands</h3><p>1.Stop all containers</p>
+<font color="blue">$ docker stop $(docker ps -a -q) </font>
+
+<p>2.Delete all containers</p>
+<font color="blue">$ docker rm $(docker ps -a -q) </font>
+
+<ol>
+<li>Delete all images</li>
+</ol>
+<font color="blue">$ docker rmi $(docker images -q)</font>
+
+<h3 id="B-_Build_docker_image"><a href="#B-_Build_docker_image" class="headerlink" title="B. Build docker image"></a>B. Build docker image</h3><h4 id="1-_Prepare_the_Dockerfile"><a href="#1-_Prepare_the_Dockerfile" class="headerlink" title="1. Prepare the Dockerfile"></a>1. Prepare the Dockerfile</h4><pre><code>
+FROM centos:centos7
+MAINTAINER Jeff Yang
+ENV MAJOR_PATH /home/apps/IPMI/
+ENV INSTALL_PATH /home/install/ 
+ENV CONFIG_PATH /home/apps/DCMS/config/
+RUN mkdir -p $MAJOR_PATH 
+RUN mkdir -p $CONFIG_PATH
+RUN mkdir -p $INSTALL_PATH
+### Install supervisord
+#RUN yum update -y
+#RUN yum -y install python-setuptools epel-release python-pip
+#RUN easy_install supervisor
+COPY setuptools-19.2.tar.gz $INSTALL_PATH 
+COPY meld3-0.6.5.tar.gz $INSTALL_PATH 
+COPY elementtree-1.2-20040618.tar.gz $INSTALL_PATH 
+COPY supervisor-3.1.3.tar.gz $INSTALL_PATH 
+COPY ipmiutil-2.9.6-1_rhel6.x86_64.rpm $INSTALL_PATH  
+RUN chmod 700 $INSTALL_PATH/setuptools-19.2.tar.gz && \
+tar -zxvf $INSTALL_PATH/setuptools-19.2.tar.gz -C $INSTALL_PATH && \
+cd $INSTALL_PATH/setuptools-19.2/ && \ 
+python setup.py install
+RUN chmod 700 $INSTALL_PATH/meld3-0.6.5.tar.gz && \
+tar -zxvf $INSTALL_PATH/meld3-0.6.5.tar.gz -C $INSTALL_PATH && \
+cd $INSTALL_PATH/meld3-0.6.5/ && \ 
+python setup.py install
+RUN chmod 700 $INSTALL_PATH/elementtree-1.2-20040618.tar.gz && \
+tar -zxvf $INSTALL_PATH/elementtree-1.2-20040618.tar.gz -C $INSTALL_PATH && \
+cd $INSTALL_PATH/elementtree-1.2-20040618/ && \ 
+python setup.py install
+RUN chmod 700 $INSTALL_PATH/supervisor-3.1.3.tar.gz && \
+tar -zxvf $INSTALL_PATH/supervisor-3.1.3.tar.gz -C $INSTALL_PATH && \
+cd $INSTALL_PATH/supervisor-3.1.3/ && \ 
+python setup.py install
+</code></pre>
+
+<h4 id="2-_Build_base_image"><a href="#2-_Build_base_image" class="headerlink" title="2. Build base image"></a>2. Build base image</h4><pre><code>
+$ docker build -t="code_icdc:v.01″ .
+</code></pre>
+
+<h3 id="C-_Backup_image"><a href="#C-_Backup_image" class="headerlink" title="C. Backup image"></a>C. Backup image</h3><h4 id="1-_Save_image"><a href="#1-_Save_image" class="headerlink" title="1. Save image"></a>1. Save image</h4><pre><code>$ docker save -o code_icdc_v01.tar code_icdc:v.01
+</code></pre><h4 id="2-_Load_image"><a href="#2-_Load_image" class="headerlink" title="2. Load image"></a>2. Load image</h4><pre><code>$ sudo docker load –input code_icdc_v01.tar
+
+OR
+
+$ sudo docker load &lt; code_icdc_v01.tar
+</code></pre><h3 id="D"><a href="#D" class="headerlink" title="D."></a>D.</h3><h4 id="1-_Build_own_program__28ipmicdc_29"><a href="#1-_Build_own_program__28ipmicdc_29" class="headerlink" title="1. Build own program (ipmicdc)"></a>1. Build own program (ipmicdc)</h4><p><pre><code><br>$ go build ipmicdc.go ipmidocker.go<br></code></pre><br>    <strong>ipmidocker.go</strong><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line"> <span class="string">"math"</span></span><br><span class="line"> <span class="string">"os"</span></span><br><span class="line"> <span class="string">"strconv"</span></span><br><span class="line"> <span class="string">"errors"</span></span><br><span class="line"> <span class="string">"fmt"</span></span><br><span class="line"> <span class="string">"os/exec"</span></span><br><span class="line"> <span class="string">"net/http"</span></span><br><span class="line"> <span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">const</span> gDYamlName = <span class="string">"icdc.yml"</span> </span><br><span class="line"><span class="keyword">const</span> gDHostImage = <span class="string">"code_icdc:v.01"</span></span><br><span class="line"><span class="keyword">const</span> gDVolumes1_Host = <span class="string">"./"</span></span><br><span class="line"><span class="keyword">const</span> gDVolumes1_Client = <span class="string">"/home/apps/IPMI/"</span></span><br><span class="line"><span class="keyword">const</span> gDVolumes2_Host = <span class="string">"/home/apps/DCMS/config/"</span></span><br><span class="line"><span class="keyword">const</span> gDVolumes2_Client = <span class="string">"/home/apps/DCMS/config/"</span></span><br><span class="line"><span class="keyword">const</span> gDPort = <span class="string">"31001"</span></span><br><span class="line"><span class="keyword">var</span> gDTotalContainers <span class="typename">int</span></span><br><span class="line"><span class="keyword">var</span> gDHostIPPort <span class="typename">int</span></span><br><span class="line"><span class="keyword">var</span> gDTotalIPsCount <span class="typename">int</span></span><br><span class="line"><span class="keyword">var</span> gDNumprocs <span class="typename">int</span></span><br><span class="line"><span class="keyword">var</span> gDMaxHandleIPs <span class="typename">int</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">type</span> IcdcDocker <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">func</span> (sid *IcdcDocker) update(w http.ResponseWriter, r *http.Request) &#123;</span><br><span class="line"> <span class="keyword">if</span> gDHostIPPort&lt;= <span class="number">0</span> || gDNumprocs &lt;= <span class="number">0</span> || gDMaxHandleIPs&lt;=<span class="number">0</span> &#123;</span><br><span class="line"> fmt.Fprintf(w, <span class="string">"fail"</span>)</span><br><span class="line"> <span class="keyword">return</span> </span><br><span class="line"> &#125; </span><br><span class="line"> err := sid.run(gDHostIPPort, gDNumprocs, gDMaxHandleIPs) </span><br><span class="line"> <span class="keyword">if</span> err != <span class="constant">nil</span>&#123; </span><br><span class="line"> fmt.Fprintf(w, <span class="string">"fail"</span>)</span><br><span class="line"> &#125;</span><br><span class="line"> fmt.Fprintf(w, <span class="string">"ok"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">func</span> (sid *IcdcDocker) stop() (e error) &#123; </span><br><span class="line"> <span class="keyword">var</span> err error</span><br><span class="line"> err = sid.dockerAllStop()</span><br><span class="line"> <span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line"> <span class="keyword">return</span> errors.New(<span class="string">"run ERROR"</span>) </span><br><span class="line"> &#125;</span><br><span class="line"> err = sid.dockerAllRm()</span><br><span class="line"> <span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line"> <span class="keyword">return</span> errors.New(<span class="string">"run ERROR"</span>) </span><br><span class="line"> &#125;</span><br><span class="line"> <span class="keyword">return</span> <span class="constant">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">func</span> (sid *IcdcDocker) run( hostIpPort <span class="typename">int</span>, numprocs <span class="typename">int</span>, maxHandleIPs <span class="typename">int</span> ) (e error) &#123; </span><br><span class="line"> <span class="keyword">var</span> err error</span><br><span class="line"> err = sid.dockerComposeYamlMaker(hostIpPort, numprocs, maxHandleIPs)</span><br><span class="line"> <span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line"> fmt.Println(<span class="string">"run ERROR"</span> )</span><br><span class="line"> <span class="keyword">return</span> errors.New(<span class="string">"run ERROR"</span>) </span><br><span class="line"> &#125; </span><br><span class="line"> err = sid.dockerAllStop()</span><br><span class="line"> <span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line"> <span class="keyword">return</span> errors.New(<span class="string">"run ERROR"</span>) </span><br><span class="line"> &#125;</span><br><span class="line"> err = sid.dockerAllRm()</span><br><span class="line"> <span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line"> <span class="keyword">return</span> errors.New(<span class="string">"run ERROR"</span>) </span><br><span class="line"> &#125;</span><br><span class="line"> err = sid.dockerStart()</span><br><span class="line"> <span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line"> <span class="keyword">return</span> errors.New(<span class="string">"run ERROR"</span>) </span><br><span class="line"> &#125; </span><br><span class="line"> <span class="keyword">return</span> <span class="constant">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">func</span> (sid *IcdcDocker) dockerStart() (e error) &#123; </span><br><span class="line"> <span class="keyword">if</span> gDTotalContainers &lt;= <span class="number">0</span> &#123;</span><br><span class="line"> <span class="keyword">return</span> errors.New(<span class="string">"dockerComposeStart ERROR"</span>)</span><br><span class="line"> &#125; </span><br><span class="line"> cmdStr := <span class="string">"docker-compose -f "</span> + gDYamlName + <span class="string">" up -d"</span></span><br><span class="line"> exec.Command(<span class="string">"/bin/sh"</span>, <span class="string">"-c"</span>, cmdStr).Output() </span><br><span class="line"> &lt;-time.After(time.Second)</span><br><span class="line"> <span class="keyword">return</span> <span class="constant">nil</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">func</span> (sid *IcdcDocker) dockerAllStop() (e error) &#123; </span><br><span class="line"> <span class="comment">// stop all contains</span></span><br><span class="line"> cmdStr := <span class="string">"docker stop $(docker ps -a -q)"</span> </span><br><span class="line"> exec.Command(<span class="string">"/bin/sh"</span>, <span class="string">"-c"</span>, cmdStr).Output() </span><br><span class="line"> &lt;-time.After(time.Second)</span><br><span class="line"> <span class="keyword">return</span> <span class="constant">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">func</span> (sid *IcdcDocker) dockerAllRm() (e error) &#123; </span><br><span class="line"> <span class="comment">// remove all contains</span></span><br><span class="line"> cmdStr := <span class="string">"docker rm $(docker ps -a -q)"</span></span><br><span class="line"> <span class="comment">//out, _ := </span></span><br><span class="line"> exec.Command(<span class="string">"/bin/sh"</span>, <span class="string">"-c"</span>, cmdStr).Output() </span><br><span class="line"> &lt;-time.After(time.Second)</span><br><span class="line"> <span class="keyword">return</span> <span class="constant">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">func</span> (sid *IcdcDocker) dockerChcon() (e error) &#123;</span><br><span class="line"> cmdStr1 := <span class="string">"chcon -Rt svirt_sandbox_file_t "</span>+ gDVolumes1_Host</span><br><span class="line"> exec.Command(<span class="string">"/bin/sh"</span>, <span class="string">"-c"</span>, cmdStr1).Output() </span><br><span class="line"> cmdStr2 := <span class="string">"chcon -Rt svirt_sandbox_file_t "</span>+ gDVolumes2_Host</span><br><span class="line"> exec.Command(<span class="string">"/bin/sh"</span>, <span class="string">"-c"</span>, cmdStr2).Output() </span><br><span class="line"> <span class="keyword">return</span> <span class="constant">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">func</span> (sid *IcdcDocker) dockerComposeYamlMaker( hostIpPort <span class="typename">int</span>, numprocs <span class="typename">int</span>, maxHandleIPs <span class="typename">int</span> ) (e error) &#123; </span><br><span class="line"> gDTotalContainers = <span class="number">0</span></span><br><span class="line"><span class="comment">//************************</span></span><br><span class="line"><span class="comment">//get number of ip from DB </span></span><br><span class="line"> totalIPsCount := getTotalIPsCount()</span><br><span class="line"><span class="comment">//************************</span></span><br><span class="line"> <span class="keyword">if</span> hostIpPort&lt;= <span class="number">0</span> || numprocs &lt;= <span class="number">0</span> || maxHandleIPs&lt;=<span class="number">0</span> || totalIPsCount&lt;=<span class="number">0</span> &#123;</span><br><span class="line"> fmt.Println(<span class="string">"dockerComposeYamlMaker ERROR!!!"</span> )</span><br><span class="line"> <span class="keyword">return</span> errors.New(<span class="string">"dockerComposeYamlMaker ERROR"</span>)</span><br><span class="line"> &#125;</span><br><span class="line"> file, err := os.Create(gDYamlName)</span><br><span class="line"> <span class="keyword">if</span> err != <span class="constant">nil</span> &#123;</span><br><span class="line"> fmt.Println(<span class="string">"dockerComposeYamlMaker ERROR!!!"</span> )</span><br><span class="line"> <span class="keyword">return</span> errors.New(<span class="string">"dockerComposeYamlMaker ERROR"</span>)</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="keyword">defer</span> file.Close()</span><br><span class="line"> file.Chmod(<span class="number">0777</span>)</span><br><span class="line"> <span class="keyword">var</span> s <span class="typename">string</span></span><br><span class="line"> <span class="keyword">var</span> t <span class="typename">int</span></span><br><span class="line">totalContainers := <span class="typename">int</span>( math.Ceil( <span class="typename">float64</span>(totalIPsCount) / (<span class="typename">float64</span>(numprocs) * <span class="typename">float64</span>(maxHandleIPs) ) ))</span><br><span class="line">gDHostIPPort = hostIpPort</span><br><span class="line"> gDTotalIPsCount = totalIPsCount</span><br><span class="line"> gDNumprocs = numprocs</span><br><span class="line"> gDMaxHandleIPs = maxHandleIPs</span><br><span class="line"> gDTotalContainers = totalContainers </span><br><span class="line"> sid.dockerChcon()</span><br><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; totalContainers; i++ &#123; </span><br><span class="line"> s = <span class="string">"build"</span> + strconv.Itoa(i) + <span class="string">":\n"</span></span><br><span class="line"> file.WriteString(s)</span><br><span class="line"> s = <span class="string">" container_name: envTest"</span> + strconv.Itoa(i) + <span class="string">"\n"</span></span><br><span class="line"> file.WriteString(s)</span><br><span class="line"> file.WriteString(<span class="string">" image: "</span>+ gDHostImage + <span class="string">"\n"</span>) </span><br><span class="line"> file.WriteString(<span class="string">" ports:\n"</span>)</span><br><span class="line"> s = <span class="string">" - "</span> + strconv.Itoa(hostIpPort+<span class="number">1</span>+i) + <span class="string">":"</span>+gDPort+<span class="string">"\n"</span></span><br><span class="line"> file.WriteString(s)</span><br><span class="line"> file.WriteString(<span class="string">" volumes:\n"</span>)</span><br><span class="line"> file.WriteString(<span class="string">" - "</span> + gDVolumes1_Host +<span class="string">":"</span>+gDVolumes1_Client+<span class="string">"\n"</span>)</span><br><span class="line"> file.WriteString(<span class="string">" - "</span> + gDVolumes2_Host +<span class="string">":"</span>+gDVolumes2_Client+<span class="string">"\n"</span>)</span><br><span class="line"> file.WriteString(<span class="string">" restart: always\n"</span>)</span><br><span class="line"> file.WriteString(<span class="string">" stdin_open: true\n"</span>)</span><br><span class="line"> file.WriteString(<span class="string">" environment:\n"</span>)</span><br><span class="line">t = i*numprocs*maxHandleIPs</span><br><span class="line"> s = <span class="string">" - IPMI_GET_IP_S="</span> + strconv.Itoa(t) + <span class="string">"\n"</span></span><br><span class="line"> file.WriteString(s)</span><br><span class="line"> t = (i+<span class="number">1</span>)*numprocs*maxHandleIPs - <span class="number">1</span></span><br><span class="line"> s = <span class="string">" - IPMI_GET_IP_E="</span> + strconv.Itoa(t) + <span class="string">"\n"</span></span><br><span class="line"> file.WriteString(s)</span><br><span class="line"> s = <span class="string">" - ICDC_EXE_PATH="</span> + gDVolumes1_Client + <span class="string">"\n"</span></span><br><span class="line"> file.WriteString(s)</span><br><span class="line">file.WriteString(<span class="string">" command: sh "</span> + gDVolumes1_Client + <span class="string">"start.sh"</span> + <span class="string">"\n"</span>)</span><br><span class="line"> &#125; </span><br><span class="line"> <span class="keyword">return</span> <span class="constant">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>ipmicdc.go</strong><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> main() &#123;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">if</span> os.Args[<span class="number">1</span>] == <span class="string">"docker"</span> &#123; <span class="comment">// docker version </span></span><br><span class="line"> numprocs := parserSupervisordConf(os.Args[<span class="number">0</span>]) </span><br><span class="line"> <span class="keyword">var</span> err error</span><br><span class="line"> <span class="keyword">var</span> sid IcdcDocker</span><br><span class="line"> sid.run( gPort, numprocs, gMaxHandleIPs)</span><br><span class="line"> <span class="keyword">if</span> err != <span class="constant">nil</span>&#123;</span><br><span class="line"> <span class="keyword">return</span> </span><br><span class="line"> &#125; </span><br><span class="line"> <span class="comment">//--------------</span></span><br><span class="line"> sigs := <span class="built_in">make</span>(<span class="keyword">chan</span> os.Signal, <span class="number">1</span>)</span><br><span class="line"> signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)</span><br><span class="line"> <span class="keyword">go</span> <span class="keyword">func</span>() &#123;</span><br><span class="line"> sig := &lt;-sigs</span><br><span class="line"> fmt.Println()</span><br><span class="line"> fmt.Println(sig)</span><br><span class="line"> sid.stop()</span><br><span class="line"> &#125;() </span><br><span class="line"> <span class="comment">//--------------</span></span><br><span class="line">http.HandleFunc(<span class="string">"/updateDB"</span>, sid.update) </span><br><span class="line"> <span class="keyword">var</span> sic IcdcCmd</span><br><span class="line"> http.HandleFunc(<span class="string">"/discover"</span>, sic.commReceiveDiscoverCommand)</span><br><span class="line"> http.HandleFunc(<span class="string">"/lan"</span>, sic.commReceiveLanCommand) </span><br><span class="line"> http.ListenAndServe(<span class="string">":"</span>+strconv.Itoa(gPort), <span class="constant">nil</span>) </span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="2-_Start-sh_include_docker_u2018s_Supervisord-conf"><a href="#2-_Start-sh_include_docker_u2018s_Supervisord-conf" class="headerlink" title="2. Start.sh include docker‘s Supervisord.conf"></a>2. Start.sh include docker‘s Supervisord.conf</h4><p><strong>Start.sh</strong><br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/sh</span></span><br><span class="line">cp <span class="variable">$ICDC_EXE_PATH</span>/libs/libipmi.so /usr/lib/</span><br><span class="line">ldconfig</span><br><span class="line">cp <span class="variable">$ICDC_EXE_PATH</span>/s.conf /etc/supervisord.conf</span><br><span class="line">/usr/bin/supervisord -c <span class="variable">$ICDC_EXE_PATH</span>/supervisord.conf -n</span><br></pre></td></tr></table></figure></p>
+<p><strong>Supervisord.conf</strong></p>
+<p><pre><code><br>…<br>[program:ipmicdc]<br>command=/home/apps/IPMI/ipmicdc %(process_num)d<br>process_name = %(process_num)d<br>numprocs=2<br>autostart=no<br>autorestart=yes<br>[program:ipmi]<br>command=/home/apps/IPMI/ipmicdc<br>autostart=yes<br>autorestart=yes<br></code></pre></p>
+<h4 id="3-_Start_Host_u2019s_Supervisord"><a href="#3-_Start_Host_u2019s_Supervisord" class="headerlink" title="3. Start Host’s Supervisord"></a>3. Start Host’s Supervisord</h4><pre><code class="sh">$ supervisord -c /home/jeff/icdc/supervisord_docker.conf -n
+</code></pre>
+<p><strong>supervisord_docker.conf</strong></p>
+<p><pre><code><br>[program:ipmi_docker]<br>command=./ipmicdc “docker”<br>autostart=yes<br>autorestart=true<br>stopwaitsecs=10<br></code></pre></p>
+<blockquote>
+<p>[root@localhost code]# docker ps<br>CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS                     NAMES<br>f32ab2fe909e        code_icdc:v.01      “/bin/bash”         44 seconds ago      Up 41 seconds       0.0.0.0:31003-&gt;9080/tcp   envTest1<br>2028a0d07072        code_icdc:v.01      “/bin/bash”         50 seconds ago      Up 44 seconds       0.0.0.0:31002-&gt;9080/tcp   envTest0
+　</p>
+</blockquote>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
   <article class="post">
   
   <div class="post-content">
@@ -534,7 +658,7 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
 
 <nav id="pagination">
   
-    <a href="/" class="alignleft prev">上一页</a>
+    <a href="/" class="alignleft prev">Назад</a>
   
   
   <div class="clearfix"></div>
@@ -542,7 +666,7 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
     <aside id="sidebar" class="alignright">
   <div class="search">
   <form action="//google.com/search" method="get" accept-charset="utf-8">
-    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="search" name="q" results="0" placeholder="Поиск">
     <input type="hidden" name="q" value="site:chihchengyang.github.io">
   </form>
 </div>
@@ -550,18 +674,18 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
   
   <div class="widget tag">
     <h3 class="title">Archives</h3>
-    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">2016.03</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">2016.04</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">2016.03</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
   </div>
 
 
   
 <div class="widget tag">
-  <h3 class="title">分类</h3>
+  <h3 class="title">Категории</h3>
   <ul class="entry">
   
     <li><a href="/categories/Algorithm/">Algorithm</a><small>1</small></li>
   
-    <li><a href="/categories/Coding/">Coding</a><small>11</small></li>
+    <li><a href="/categories/Coding/">Coding</a><small>12</small></li>
   
     <li><a href="/categories/Machine-Learning/">Machine Learning</a><small>2</small></li>
   
@@ -573,14 +697,14 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
 
   
 <div class="widget tag">
-  <h3 class="title">标签</h3>
+  <h3 class="title">Метки</h3>
   <ul class="entry">
   
     <li><a href="/tags/android/">android</a><small>1</small></li>
   
     <li><a href="/tags/c-c/">c/c++</a><small>1</small></li>
   
-    <li><a href="/tags/c3-js/">c3.js</a><small>1</small></li>
+    <li><a href="/tags/c3-js/">c3.js</a><small>2</small></li>
   
     <li><a href="/tags/django/">django</a><small>1</small></li>
   
@@ -588,17 +712,19 @@ a6cb9b81c8e6 centos “bash -c /home/code/g&quot; 4 minutes ago Up 57 seconds 0.
   
     <li><a href="/tags/golang/">golang</a><small>4</small></li>
   
-    <li><a href="/tags/influxDB/">influxDB</a><small>1</small></li>
+    <li><a href="/tags/influxDB/">influxDB</a><small>2</small></li>
   
     <li><a href="/tags/ipmi/">ipmi</a><small>1</small></li>
   
-    <li><a href="/tags/javascript/">javascript</a><small>2</small></li>
+    <li><a href="/tags/javascript/">javascript</a><small>3</small></li>
   
-    <li><a href="/tags/python/">python</a><small>6</small></li>
+    <li><a href="/tags/python/">python</a><small>7</small></li>
   
     <li><a href="/tags/supervisord/">supervisord</a><small>3</small></li>
   
     <li><a href="/tags/tools/">tools</a><small>3</small></li>
+  
+    <li><a href="/tags/tornado/">tornado</a><small>1</small></li>
   
     <li><a href="/tags/vm/">vm</a><small>1</small></li>
   
