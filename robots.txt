@@ -11,4 +11,4 @@ Disallow: /fonts/
 Disallow: /vendors/
 Disallow: /fancybox/
 
-Sitemap: http://chihchengyang.github.io//sitemap.xml
+Sitemap: https://github.com/ChihChengYang/ChihChengYang.github.io/blob/master/sitemap.xml
