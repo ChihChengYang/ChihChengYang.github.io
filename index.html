@@ -55,6 +55,50 @@
     <header>
       
         <div class="icon"></div>
+        <time datetime="2016-05-11T10:40:12.000Z"><a href="/2016/05/11/Building-Information-Modeling/">2016-05-11</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2016/05/11/Building-Information-Modeling/">Building Information Modeling - BIM</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Recently I have been doing some reserch on <a href="https://en.wikipedia.org/wiki/Building_information_modeling" title="BIM" target="_blank" rel="external">BIM</a>.</p>
+<p>The story is I have to filter out some parts of BIM file then showing that on web… </p>
+<p><strong>Some tools use to display separately parts of <a href="https://en.wikipedia.org/wiki/Industry_Foundation_Classes" title="IFC" target="_blank" rel="external">IFC</a> model</strong></p>
+<p>[1] <a href="https://github.com/opensourceBIM/BIMserver/releases" title="BIMserver" target="_blank" rel="external">BIMserver</a> with BIMvie.ws.</p>
+<img src="/2016/05/11/Building-Information-Modeling/Screenshot1.png" alt=" show whole building" title=" show whole building">    
+<img src="/2016/05/11/Building-Information-Modeling/Screenshot2.png" alt=" filter out Level 1&2" title=" filter out Level 1&2">    
+<p>[2] <a href="http://iai-typo3.iai.fzk.de/www-extern/index.php?id=1139&amp;L=1" title="IfcStoreyView" target="_blank" rel="external">IfcStoreyView</a> IFC model display 2D, 3D use OpenGL…</p>
+<h2 id="Test"><a href="#Test" class="headerlink" title="Test"></a>Test</h2><p>architect.ifc -&gt; <a href="http://ifcopenshell.org/ifcconvert.html" title="IfcConvert" target="_blank" rel="external">IfcConvert</a> to dae -&gt; dae import into three.js</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">G:\BIM2&#62;IfcConvert.exe architect.ifc a.dae&#10;Scanning file...&#10;Done scanning file&#10;Creating geometry...&#10;Done creating geometry</span><br></pre></td></tr></table></figure> 
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">&lt;!doctype html&gt;</span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="title">html</span> <span class="attribute">lang</span>=<span class="value">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">title</span>&gt;</span>Test<span class="tag">&lt;/<span class="title">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">meta</span> <span class="attribute">charset</span>=<span class="value">"utf-8"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">body</span> <span class="attribute">style</span>=<span class="value">"margin: 0;"</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="title">script</span> <span class="attribute">src</span>=<span class="value">"three.min.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">script</span> <span class="attribute">src</span>=<span class="value">"ColladaLoader.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">script</span> <span class="attribute">src</span>=<span class="value">"OrbitControls.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">script</span>&gt;</span><span class="actionscript"></span><br><span class="line"><span class="keyword">var</span> scene, camera, renderer;</span><br><span class="line">init();</span><br><span class="line">animate();</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">scene = <span class="keyword">new</span> THREE.Scene();</span><br><span class="line"><span class="keyword">var</span> WIDTH = window.innerWidth,</span><br><span class="line">HEIGHT = window.innerHeight;</span><br><span class="line">renderer = <span class="keyword">new</span> THREE.WebGLRenderer(&#123;antialias:<span class="literal">true</span>&#125;);</span><br><span class="line">renderer.setSize(WIDTH, HEIGHT);</span><br><span class="line">document.body.appendChild(renderer.domElement);</span><br><span class="line">camera = <span class="keyword">new</span> THREE.PerspectiveCamera(<span class="number">45</span>, WIDTH / HEIGHT, <span class="number">0.1</span>, <span class="number">10000</span>);</span><br><span class="line">camera.position.<span class="keyword">set</span>(<span class="number">50</span>,<span class="number">150</span>,<span class="number">100</span>);</span><br><span class="line">scene.add(camera);</span><br><span class="line">window.addEventListener(<span class="string">'resize'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>&#123;</span><br><span class="line"><span class="keyword">var</span> WIDTH = window.innerWidth,</span><br><span class="line">HEIGHT = window.innerHeight;</span><br><span class="line">renderer.setSize(WIDTH, HEIGHT);</span><br><span class="line">camera.aspect = WIDTH / HEIGHT;</span><br><span class="line">camera.updateProjectionMatrix();</span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">var</span> light = <span class="keyword">new</span> THREE.PointLight(<span class="number">0xfffff3</span>, <span class="number">0.8</span>);</span><br><span class="line">light.position.<span class="keyword">set</span>(-<span class="number">100</span>,<span class="number">200</span>,<span class="number">100</span>);</span><br><span class="line">scene.add(light);</span><br><span class="line"><span class="keyword">var</span> sphereSize = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">var</span> pointLightHelper = <span class="keyword">new</span> THREE.PointLightHelper( light, sphereSize );</span><br><span class="line">scene.add( pointLightHelper );</span><br><span class="line"><span class="keyword">var</span> light2 = <span class="keyword">new</span> THREE.PointLight(<span class="number">0xd7f0ff</span>, <span class="number">0.2</span>);</span><br><span class="line">light2.position.<span class="keyword">set</span>(<span class="number">200</span>,<span class="number">200</span>,<span class="number">100</span>);</span><br><span class="line">scene.add(light2);</span><br><span class="line"><span class="keyword">var</span> sphereSize = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">var</span> pointLightHelper2 = <span class="keyword">new</span> THREE.PointLightHelper( light2, sphereSize );</span><br><span class="line">scene.add( pointLightHelper2 );</span><br><span class="line"><span class="keyword">var</span> light3 = <span class="keyword">new</span> THREE.PointLight(<span class="number">0xFFFFFF</span>, <span class="number">0.5</span>);</span><br><span class="line">light3.position.<span class="keyword">set</span>(<span class="number">150</span>,<span class="number">200</span>,-<span class="number">100</span>);</span><br><span class="line">scene.add(light3);</span><br><span class="line"><span class="keyword">var</span> sphereSize = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">var</span> pointLightHelper3 = <span class="keyword">new</span> THREE.PointLightHelper( light3, sphereSize );</span><br><span class="line">scene.add( pointLightHelper3 );</span><br><span class="line"><span class="keyword">var</span> loader = <span class="keyword">new</span> THREE.ColladaLoader();</span><br><span class="line">loader.options.convertUpAxis = <span class="literal">true</span>;</span><br><span class="line">loader.load( <span class="string">'a.dae'</span>, <span class="function"><span class="keyword">function</span> <span class="params">( collada )</span> </span>&#123;</span><br><span class="line"><span class="keyword">var</span> dae = collada.scene;</span><br><span class="line"><span class="keyword">var</span> skin = collada.skins[ <span class="number">0</span> ];</span><br><span class="line">dae.position.<span class="keyword">set</span>(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>);<span class="comment">//x,z,y- if you think in blender dimensions ;)</span></span><br><span class="line">dae.scale.<span class="keyword">set</span>(<span class="number">1.5</span>,<span class="number">1.5</span>,<span class="number">1.5</span>);</span><br><span class="line">scene.add(dae);</span><br><span class="line"><span class="keyword">var</span> axes = <span class="keyword">new</span> THREE.AxisHelper(<span class="number">50</span>);</span><br><span class="line">axes.position = dae.position;</span><br><span class="line">scene.add(axes);</span><br><span class="line"><span class="keyword">var</span> gridXZ = <span class="keyword">new</span> THREE.GridHelper(<span class="number">100</span>, <span class="number">10</span>);</span><br><span class="line">gridXZ.setColors( <span class="keyword">new</span> THREE.Color(<span class="number">0x8f8f8f</span>), <span class="keyword">new</span> THREE.Color(<span class="number">0x8f8f8f</span>) );</span><br><span class="line">gridXZ.position.<span class="keyword">set</span>(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span> );</span><br><span class="line">scene.add(gridXZ);</span><br><span class="line">&#125;);</span><br><span class="line">controls = <span class="keyword">new</span> THREE.OrbitControls(camera, renderer.domElement);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">animate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">requestAnimationFrame(animate);</span><br><span class="line">renderer.render(scene, camera);</span><br><span class="line">controls.update();</span><br><span class="line">&#125;</span><br><span class="line"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">html</span>&gt;</span></span></span><br></pre></td></tr></table></figure> 
+<img src="/2016/05/11/Building-Information-Modeling/Screenshot3.png" alt="Test" title="Test">    
+<h2 id="TODO_3A"><a href="#TODO_3A" class="headerlink" title="TODO:"></a>TODO:</h2><p>Submit one BIM file (IFC format) -&gt; filter out some parts -&gt; remake IFC -&gt; convert format(dae or json or…) -&gt; display on web(three.js) </p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
         <time datetime="2016-04-15T10:40:12.000Z"><a href="/2016/04/15/React-Table-Tornado/">2016-04-15</a></time>
       
       
@@ -784,68 +828,6 @@ DB_TABLE = <span class="string">'tableName'</span>
 
 
 
-  <article class="post">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time datetime="2016-01-20T10:40:12.000Z"><a href="/2016/01/20/Ipmi-tools/">2016-01-20</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2016/01/20/Ipmi-tools/">IPMI Tools</a></h1>
-  
-
-    </header>
-    <div class="entry">
-      
-        <h2 id="There_are_4_notable_ipmi_sw_tools_and_here_is_the_compare_ipmi_tools_compare"><a href="#There_are_4_notable_ipmi_sw_tools_and_here_is_the_compare_ipmi_tools_compare" class="headerlink" title="There are 4 notable ipmi sw tools and here is the compare ipmi tools compare"></a>There are 4 notable ipmi sw tools and here is the compare <a href="http://ipmiutil.sourceforge.net/docs/ipmisw-compare.htm" title="ipmi sw compare" target="_blank" rel="external">ipmi tools compare</a></h2><p><strong><em>Usage EX:</em></strong><br>Get sensors</p>
-<ul>
-<li><p>ipmi-sensors -h 10.250.210.139 -u admin -p password -D LAN_2_0</p>
-</li>
-<li><p>ipmitool -I lanplus -U admin -P password -H 10.250.210.13 sdr list</p>
-</li>
-<li><p>ipmiutil sensor -c -F lan2 -N 10.250.210.13 -U admin -R password</p>
-</li>
-</ul>
-<h2 id="How_to_build_the_reusable_library_of_ipmitool_u2026"><a href="#How_to_build_the_reusable_library_of_ipmitool_u2026" class="headerlink" title="How to build the reusable library of ipmitool…"></a>How to build the reusable library of ipmitool…</h2><ol>
-<li><p>doenload <a href="http://sourceforge.net/projects/ipmitool/" title="ipmitool 1.8.15" target="_blank" rel="external">ipmitool 1.8.15</a> </p>
-</li>
-<li><p>yum install openssl openssl-devel (For “lanplus : yes”)</p>
-</li>
-<li><p>cd ipmitool 1.8.15 &amp; CC=gcc4 CFLAGS=-m32 LDFLAGS=-static &amp; ./configure</p>
-</li>
-<li><p>(make clean) &amp; make &amp; make install </p>
-</li>
-<li><p>cd src</p>
-</li>
-<li><p>/bin/sh ../libtool –silent –tag=CC –mode=link gcc -fno-strict-aliasing -Wreturn-type -all-static -o ipmitool.a ipmishell.o ../lib/libipmitool.la plugins/libintf.la</p>
-</li>
-<li><p>gcc -g  -lm -lcrypto ipmitool.c -fPIC -shared -o libicdcipmi.so -L. ipmitool.a -I./ipmitool-1.8.15/include/</p>
-</li>
-</ol>
-<p><strong>Build own libicdcipmi.so using ipmitool.a</strong></p>
-<p><strong>ipmitool.c</strong><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="typename">int</span> getSensorsIPMI(char *<span class="keyword">interface</span>, char *usr, char *pws, char *ip, char *retry, char *getJsonString)&#123;</span><br><span class="line">	<span class="typename">int</span> rc,i; </span><br><span class="line">	<span class="typename">int</span> argc = <span class="number">13</span>; </span><br><span class="line">	char** argv;</span><br><span class="line">	argv = malloc(argc * sizeof(char*));      </span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; argc; i += <span class="number">1</span>)</span><br><span class="line">    	argv[i] = malloc(<span class="number">32</span> * sizeof(char));  </span><br><span class="line"></span><br><span class="line">	sprintf(argv[<span class="number">0</span>],<span class="string">"%s"</span>, <span class="string">"m.out"</span>);</span><br><span class="line">	sprintf(argv[<span class="number">1</span>],<span class="string">"%s"</span>, <span class="string">"-I"</span>);</span><br><span class="line">	sprintf(argv[<span class="number">2</span>],<span class="string">"%s"</span>, <span class="keyword">interface</span>);</span><br><span class="line">	sprintf(argv[<span class="number">3</span>],<span class="string">"%s"</span>, <span class="string">"-U"</span>);</span><br><span class="line">	sprintf(argv[<span class="number">4</span>],<span class="string">"%s"</span>, usr);</span><br><span class="line">	sprintf(argv[<span class="number">5</span>],<span class="string">"%s"</span>, <span class="string">"-P"</span>);</span><br><span class="line">	sprintf(argv[<span class="number">6</span>],<span class="string">"%s"</span>, pws);</span><br><span class="line">	sprintf(argv[<span class="number">7</span>],<span class="string">"%s"</span>, <span class="string">"-H"</span>);</span><br><span class="line">	sprintf(argv[<span class="number">8</span>],<span class="string">"%s"</span>, ip);</span><br><span class="line">	sprintf(argv[<span class="number">9</span>],<span class="string">"%s"</span>, <span class="string">"-R"</span>);</span><br><span class="line">	sprintf(argv[<span class="number">10</span>],<span class="string">"%s"</span>, retry);</span><br><span class="line">	sprintf(argv[<span class="number">11</span>],<span class="string">"%s"</span>, <span class="string">"sensor"</span>);</span><br><span class="line">	sprintf(argv[<span class="number">12</span>],<span class="string">"%s"</span>, <span class="string">"icdc"</span>); <span class="comment">// list </span></span><br><span class="line"> </span><br><span class="line">	<span class="keyword">struct</span> ipmi_intf_icdc iii;</span><br><span class="line">	memset(&amp;iii, <span class="number">0</span>, sizeof(<span class="keyword">struct</span> ipmi_intf_icdc)); </span><br><span class="line">	ipmi_icdc_mian(argc, argv, ipmitool_cmd_list, NULL, &amp;iii);</span><br><span class="line">  </span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; argc; i += <span class="number">1</span>)</span><br><span class="line">    	free(argv[i]);</span><br><span class="line">	free(argv);</span><br><span class="line">  	</span><br><span class="line"> 	<span class="keyword">return</span> rc;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
-<p>8.cp libicdcipmi.so /usr/lib &amp; ldconfig</p>
-<p>9.go build icdc_ipmi.go  </p>
-<p><strong>icdc_ipmi.go</strong><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span><br><span class="line">#cgo LDFLAGS: -L/usr/lib/ -licdcipmi</span><br><span class="line">#cgo CFLAGS: -I./</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include "ipmitool.h"</span><br><span class="line">*/</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">"C"</span></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"os"</span></span><br><span class="line">	<span class="string">"fmt"</span>  </span><br><span class="line">	<span class="string">"runtime"</span></span><br><span class="line">	<span class="string">"unsafe"</span> </span><br><span class="line">)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">func</span> getSensorsIPMI() &#123;   </span><br><span class="line">	drvtyp := C.CString(<span class="string">"lanplus"</span>)</span><br><span class="line">	nod := C.CString(<span class="string">"10.250.210.13"</span>)   </span><br><span class="line">	usr := C.CString(<span class="string">"ad"</span>)  </span><br><span class="line">	psw := C.CString( <span class="string">"pd"</span>) </span><br><span class="line">	retry := C.CString( <span class="string">"1"</span>)	</span><br><span class="line">	<span class="keyword">var</span> getJson [<span class="number">8192</span>]<span class="typename">byte</span></span><br><span class="line">	ret :=  C.getSensorsIPMI( drvtyp, usr, psw, nod, retry, (*C.char)(unsafe.Pointer(&amp;getJson[<span class="number">0</span>])))	</span><br><span class="line">	C.free(unsafe.Pointer(drvtyp))</span><br><span class="line">	C.free(unsafe.Pointer(nod))</span><br><span class="line">	C.free(unsafe.Pointer(usr))</span><br><span class="line">	C.free(unsafe.Pointer(psw))</span><br><span class="line">	C.free(unsafe.Pointer(retry))	</span><br><span class="line">	<span class="keyword">if</span> ret == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">var</span> jsonString <span class="typename">string</span></span><br><span class="line">		jsonString = C.GoString((*C.char)(unsafe.Pointer(&amp;getJson[<span class="number">0</span>])))</span><br><span class="line">		fmt.Println(<span class="string">"getSensorsIPMI =&gt; "</span>,jsonString)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
 
 <nav id="pagination">
   
@@ -865,7 +847,7 @@ DB_TABLE = <span class="string">'tableName'</span>
   
   <div class="widget tag">
     <h3 class="title">Archives</h3>
-    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">2016.04</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">2016.03</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">2016.05</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">2016.04</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">2016.03</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
   </div>
 
 
@@ -879,6 +861,8 @@ DB_TABLE = <span class="string">'tableName'</span>
     <li><a href="/categories/Coding/">Coding</a><small>13</small></li>
   
     <li><a href="/categories/Machine-Learning/">Machine Learning</a><small>2</small></li>
+  
+    <li><a href="/categories/Others/">Others</a><small>1</small></li>
   
     <li><a href="/categories/Tools/">Tools</a><small>2</small></li>
   
@@ -907,7 +891,7 @@ DB_TABLE = <span class="string">'tableName'</span>
   
     <li><a href="/tags/ipmi/">ipmi</a><small>1</small></li>
   
-    <li><a href="/tags/javascript/">javascript</a><small>4</small></li>
+    <li><a href="/tags/javascript/">javascript</a><small>5</small></li>
   
     <li><a href="/tags/python/">python</a><small>8</small></li>
   
