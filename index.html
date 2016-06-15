@@ -55,6 +55,44 @@
     <header>
       
         <div class="icon"></div>
+        <time datetime="2016-06-15T10:40:12.000Z"><a href="/2016/06/15/Di-Tech-Competition/">2016-06-15</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2016/06/15/Di-Tech-Competition/">Di-Tech Competition</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h1 id="u6EF4_u6EF4_u51FA_u884C__u5927_u6578_u64DA_u7B97_u6CD5_u7AF6_u8CFD"><a href="#u6EF4_u6EF4_u51FA_u884C__u5927_u6578_u64DA_u7B97_u6CD5_u7AF6_u8CFD" class="headerlink" title="滴滴出行 大數據算法競賽"></a><a href="http://research.xiaojukeji.com/competition/main.action?competitionId=DiTech2016&amp;&amp;locale=en  &quot;滴滴出行 大數據算法競賽" target="_blank" rel="external">滴滴出行 大數據算法競賽</a></h1><blockquote>
+<p>供需預測的目標是準確預測出給定地理區域在未來某個時間段的出行需求量及需求滿足量。<br>調研發現，同一地區不同時間段的訂單密度是不一樣的，<br>例如大型居住區在早高峰時段的出行需求比較旺盛，<br>而商務區則在晚高峰時段的出行需求比較旺盛。<br>如果能預測到在未來的一段時間內某些地區的出行需求量比較大，<br>就可以提前對營運車輛提供一些引導，指向性地提高部分地區的運力，<br>從而提升乘客的整體出行體驗。</p>
+<p>初賽 2016/5/18~2016/6/18</p>
+<p>成績排名前50名（含並列）的隊伍進入決賽</p>
+</blockquote>
+<h2 id="2016/6/15__u4E0A_u50B3_u6210_u7E3E"><a href="#2016/6/15__u4E0A_u50B3_u6210_u7E3E" class="headerlink" title="2016/6/15 上傳成績"></a>2016/6/15 上傳成績</h2><p><strong>排名     隊伍名稱    最優成績    最優成績提交日    最新成績    最新成績提交日</strong><br>1    inferrrr    0.248673    2016-06-15    0.248673    2016-06-15<br>…<br>50    35 Bank St    0.265588    2016-06-12    0.284922    2016-06-15<br>…<br><strong><em>198    Mr.J    0.289462    2016-06-15    0.289462    2016-06-15</em></strong><br>…</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
         <time datetime="2016-05-11T10:40:12.000Z"><a href="/2016/05/11/Building-Information-Modeling/">2016-05-11</a></time>
       
       
@@ -66,7 +104,7 @@
     <div class="entry">
       
         <p>Recently I have been doing some reserch on <a href="https://en.wikipedia.org/wiki/Building_information_modeling" title="BIM" target="_blank" rel="external">BIM</a>.</p>
-<p>The story is I have to filter out some parts of BIM file then showing that on web… </p>
+<p>BIM file needs to be filtered out some parts then showing that on web… </p>
 <p><strong>Some tools use to display separately parts of <a href="https://en.wikipedia.org/wiki/Industry_Foundation_Classes" title="IFC" target="_blank" rel="external">IFC</a> model</strong></p>
 <p>[1] <a href="https://github.com/opensourceBIM/BIMserver/releases" title="BIMserver" target="_blank" rel="external">BIMserver</a> with BIMvie.ws.</p>
 <img src="/2016/05/11/Building-Information-Modeling/Screenshot1.png" alt=" show whole building" title=" show whole building">    
@@ -788,46 +826,6 @@ DB_TABLE = <span class="string">'tableName'</span>
 
 
 
-  <article class="post">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time datetime="2016-01-27T10:00:00.000Z"><a href="/2016/01/27/Simple-web-vnc/">2016-01-27</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2016/01/27/Simple-web-vnc/">Simple web vnc</a></h1>
-  
-
-    </header>
-    <div class="entry">
-      
-        <h2 id="Try_to_create_a_low_latency_web_vnc__28no_concern_network_conditions_29"><a href="#Try_to_create_a_low_latency_web_vnc__28no_concern_network_conditions_29" class="headerlink" title="Try to create a low latency web vnc (no concern network conditions)."></a>Try to create a low latency web vnc (no concern network conditions).</h2><p>It captures the screen or a application window based on Linux (X11) , encodes that into H.264 (FFmpeg libs),<br>stream it over <a href="https://github.com/gorilla/websocket" title="WebSocket" target="_blank" rel="external">WebSocket</a> to the browser where it is finally decoded in a <a href="https://github.com/oneam/h264bsd" title="H.264 JavaScript" target="_blank" rel="external">H.264 JavaScript</a> software-based library.</p>
-<p>Browser sends control commands (mouse commands) to server over WebSocket as well.</p>
-<p><strong>Source Code</strong><br><a href="https://github.com/ChihChengYang/simple-web-vnc" title="Simple-web-vnc" target="_blank" rel="external">Simple-web-vnc</a></p>
-<p>Server — H.264 —&gt; Browser (<a href="http://serverIP:8888" target="_blank" rel="external">http://serverIP:8888</a>)<br>Server &lt;— Commands — Browser</p>
-<p>Encoder: H.264 (FFmpeg libs)<br>Protocol: Websocket (Go lib)<br>Decoder: H.264 (JavaScript H.264)   </p>
-<p>Build on Ubuntu 14.04 64bit</p>
-<p><strong>Demo</strong></p>
-<iframe width="560" height="315" src="https://www.youtube.com/embed/_yEwPDnpnQE" frameborder="0" allowfullscreen></iframe>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
 
 <nav id="pagination">
   
@@ -847,7 +845,7 @@ DB_TABLE = <span class="string">'tableName'</span>
   
   <div class="widget tag">
     <h3 class="title">Archives</h3>
-    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">2016.05</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">2016.04</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">2016.03</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">2016.06</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">2016.05</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">2016.04</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">2016.03</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
   </div>
 
 
@@ -860,7 +858,7 @@ DB_TABLE = <span class="string">'tableName'</span>
   
     <li><a href="/categories/Coding/">Coding</a><small>13</small></li>
   
-    <li><a href="/categories/Machine-Learning/">Machine Learning</a><small>2</small></li>
+    <li><a href="/categories/Machine-Learning/">Machine Learning</a><small>3</small></li>
   
     <li><a href="/categories/Others/">Others</a><small>1</small></li>
   
@@ -874,6 +872,8 @@ DB_TABLE = <span class="string">'tableName'</span>
 <div class="widget tag">
   <h3 class="title">標籤</h3>
   <ul class="entry">
+  
+    <li><a href="/tags/R/">R</a><small>0</small></li>
   
     <li><a href="/tags/android/">android</a><small>1</small></li>
   
@@ -893,7 +893,9 @@ DB_TABLE = <span class="string">'tableName'</span>
   
     <li><a href="/tags/javascript/">javascript</a><small>5</small></li>
   
-    <li><a href="/tags/python/">python</a><small>8</small></li>
+    <li><a href="/tags/python/">python</a><small>9</small></li>
+  
+    <li><a href="/tags/r/">r</a><small>1</small></li>
   
     <li><a href="/tags/react/">react</a><small>1</small></li>
   
