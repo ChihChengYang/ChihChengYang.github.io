@@ -55,6 +55,50 @@
     <header>
       
         <div class="icon"></div>
+        <time datetime="2016-09-19T10:00:00.000Z"><a href="/2016/09/19/Using-shared-Go-library-in-C-and-C-callback-in-Go/">2016-09-19</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2016/09/19/Using-shared-Go-library-in-C-and-C-callback-in-Go/">Using shared Go library in C and C&#39;s callback in Go</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <h1 id="1-_Go_functions_can_be_easily_executed_from_C_applications"><a href="#1-_Go_functions_can_be_easily_executed_from_C_applications" class="headerlink" title="1. Go functions can be easily executed from C applications."></a><strong>1. Go functions can be easily executed from C applications.</strong></h1><p><strong><em> libgoserver.go </em></strong><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main </span><br><span class="line"><span class="keyword">import</span> <span class="string">"C"</span></span><br><span class="line"><span class="comment">//export GoFccn</span></span><br><span class="line"><span class="keyword">func</span> GoFccn() &#123; </span><br><span class="line">&#125;  </span><br><span class="line"><span class="keyword">func</span> main() &#123;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>  </p>
+<p><strong> go build -buildmode=c-shared -o libgoserver.so libgoserver.go </strong></p>
+<p><strong><em> main.c </em></strong><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">"libgoserver.h"</span> </span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">GoFccn();</span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>  </p>
+<p><strong> gcc -o main main.c -lgoserver </strong></p>
+<h1 id="2-_Using_C_u2019s_callback__28function_pointer_29_in_Go"><a href="#2-_Using_C_u2019s_callback__28function_pointer_29_in_Go" class="headerlink" title="2. Using C’s callback (function pointer) in Go."></a><strong>2. Using C’s callback (function pointer) in Go.</strong></h1><p><strong><em> libgoserver.go </em></strong><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="comment">/*</span><br><span class="line">#cgo LDFLAGS: -Wl,--unresolved-symbols=ignore-in-object-files -Wl,-allow-shlib-undefined</span><br><span class="line">#include "xx.h"</span><br><span class="line">*/</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">"C"</span></span><br><span class="line"><span class="comment">//export GoFccn</span></span><br><span class="line"><span class="keyword">func</span> GoFccn() &#123;</span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">func</span> main() &#123;  </span><br><span class="line">C.pass_GoAdd((C.<span class="typename">int</span>)(<span class="number">10101</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>  </p>
+<p><strong><em> xx.h </em></strong><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">ifndef</span> XX_H</span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">define</span> XX_H</span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">ifdef</span> __cplusplus</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">"C"</span> &#123;</span><br><span class="line"><span class="preprocessor">#<span class="keyword">endif</span></span></span><br><span class="line">	<span class="function"><span class="keyword">extern</span> <span class="keyword">void</span> <span class="title">pass_GoAdd</span><span class="params">(<span class="keyword">int</span>)</span></span>;</span><br><span class="line"><span class="preprocessor">#<span class="keyword">ifdef</span> __cplusplus</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="preprocessor">#<span class="keyword">endif</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure> </p>
+<p><strong> go build -buildmode=c-shared -o libgoserver.so libgoserver.go </strong></p>
+<p><strong><em> wfsserver.c </em></strong><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">"libgoserver.h"</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">"wfsserver.h"</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line">Callback gFun;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">wfs_server_run</span><span class="params">( Callback fun )</span></span>&#123;</span><br><span class="line">    gFun = fun;</span><br><span class="line">    gFun(c);     </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong><em> wfsserver.h </em></strong><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">ifndef</span> __WFSSERVER_H__</span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">define</span> __WFSSERVER_H__ </span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">ifdef</span> __cplusplus</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">"C"</span> &#123;</span><br><span class="line"><span class="preprocessor">#<span class="keyword">endif</span></span></span><br><span class="line">	<span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*Callback)</span><span class="params">(<span class="keyword">int</span>)</span></span>;</span><br><span class="line">	<span class="function"><span class="keyword">int</span> <span class="title">wfs_server_run</span><span class="params">( Callback fun )</span></span>; </span><br><span class="line"><span class="preprocessor">#<span class="keyword">ifdef</span> __cplusplus</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="preprocessor">#<span class="keyword">endif</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure></p>
+<p><strong> gcc -Wall -fpermissive -w -O3 -fPIC -shared -o libwfsserver.so wfsserver.c -lgoserver </strong></p>
+<p><strong><em> main.c </em></strong><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">"wfsserver.h"</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span> </span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">cb_fun</span><span class="params">(<span class="keyword">int</span> c)</span></span>&#123;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">"This is a C cb_fun %d.\n"</span>,c);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123; </span><br><span class="line">wfs_server_run( cb_fun ); </span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> </p>
+<p><strong> gcc -o main main.c -lwfsserver </strong></p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
         <time datetime="2016-06-15T10:40:12.000Z"><a href="/2016/06/15/Di-Tech-Competition/">2016-06-15</a></time>
       
       
@@ -624,208 +668,6 @@ DB_TABLE = <span class="string">'tableName'</span>
 
 
 
-  <article class="post">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time datetime="2016-02-04T10:40:12.000Z"><a href="/2016/02/04/Virtual-android-phones/">2016-02-04</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2016/02/04/Virtual-android-phones/">Virtual android phones</a></h1>
-  
-
-    </header>
-    <div class="entry">
-      
-        <h1 id="Try_to_create_virtual_android_phones_on_server"><a href="#Try_to_create_virtual_android_phones_on_server" class="headerlink" title="Try to create virtual android phones on server."></a>Try to create virtual android phones on server.</h1><p>Ref.: <a href="http://android-x86.googlecode.com/files/Wowmom-CR2.pdf" title="Virtual Smartphone over IP" target="_blank" rel="external">Virtual Smartphone over IP</a></p>
-<p><em>Some android emulators:</em></p>
-<ol>
-<li>Android-x86<br><a href="http://www.android-x86.org/" target="_blank" rel="external">http://www.android-x86.org/</a></li>
-<li>ARChon Custom Runtime<br><a href="http://archon-runtime.github.io/" target="_blank" rel="external">http://archon-runtime.github.io/</a></li>
-<li>Official Android SDK Emulator w/HAXM<br><a href="http://developer.android.com/sdk/index.html" target="_blank" rel="external">http://developer.android.com/sdk/index.html</a></li>
-<li>Android on Intel Architecture<br><a href="https://01.org/android-ia" target="_blank" rel="external">https://01.org/android-ia</a></li>
-<li>ARC Welder<br><a href="https://developer.chrome.com/apps/getstarted_arc" target="_blank" rel="external">https://developer.chrome.com/apps/getstarted_arc</a></li>
-</ol>
-<h1 id="Remote_control"><a href="#Remote_control" class="headerlink" title="Remote control"></a>Remote control</h1><p>Linux Ubuntu 14.04 64bit</p>
-<p><em>Prerequisite:</em> </p>
-<ol>
-<li>Android-x86</li>
-<li>VirtualBox</li>
-<li>Python…</li>
-</ol>
-<h2 id="Steps"><a href="#Steps" class="headerlink" title="Steps"></a><strong>Steps</strong></h2><ol>
-<li>download <a href="http://www.android-x86.org/download" title="android-x86-5.1-rc1.iso" target="_blank" rel="external">android-x86-5.1-rc1.iso</a></li>
-<li>dkpg -i virtualbox-5.0_5.0.12-104815-Ubuntu-trusty_amd64.deb<br>Need to enable Intel VT-X or AMD-V in your bios configuration</li>
-<li>install android-x86 in virtualbox</li>
-<li>cotrol virtualbox on console<br><em>Start VM</em><br>If run as root: </li>
-</ol>
-<ul>
-<li>sudo -u jeff -H VBoxManage startvm Android<br>background mode</li>
-<li>sudo -u jeff -H VBoxHeadless -s Android -v on -e “TCP/Ports=31000”<br><em>Stop VM</em></li>
-<li>sudo -u jeff -H VBoxManage startvm Android</li>
-</ul>
-<h2 id="*"><a href="#*" class="headerlink" title="*"></a><em>*</em></h2><img src="/2016/02/04/Virtual-android-phones/Screenshot1.png" alt="finish install" title="finish install">
-<h2 id="Test"><a href="#Test" class="headerlink" title="Test"></a><strong>Test</strong></h2><h3 id="TCP_socket"><a href="#TCP_socket" class="headerlink" title="TCP socket"></a><strong>TCP socket</strong></h3><p>In android-x86 press Alt+F1 entry console mode<br>netcfg<br>check ip<br>ifconfig eth0 xx.xx.xx.xx netmask 255.255.255.0<br>Alt+F7 GUI mode</p>
-<p><strong>1, Server send a message -&gt; Android VM app receive the message</strong></p>
-<p><strong>Server</strong><br><strong><em>client.py</em></strong></p>
-<pre><code class="python"><span class="comment"># -*- coding: utf-8 -*-</span>
-<span class="keyword">import</span> socket 
-<span class="function"><span class="keyword">def</span> <span class="title">Main</span><span class="params">()</span>:</span>
-    host = <span class="string">'192.168.42.142'</span>
-    port = <span class="number">10090</span>         
-    mySocket = socket.socket()
-    mySocket.connect((host,port))        
-    message = input(<span class="string">" -&gt; "</span>)         
-    <span class="keyword">while</span> message != <span class="string">'e'</span>:
-        mySocket.send(message.encode())            
-        message = input(<span class="string">" -&gt; "</span>)                 
-    mySocket.close() 
-<span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:
-    Main()
-</code></pre>
-<p><strong>Android VM app</strong></p>
-<p><strong><em>SockerService.java</em></strong></p>
-<pre><code class="java"><span class="keyword">package</span> com.example.user.myapplication;
-<span class="keyword">import</span> android.app.IntentService;
-<span class="keyword">import</span> android.content.Context;
-<span class="keyword">import</span> android.content.Intent;
-<span class="keyword">import</span> android.util.Log;
-<span class="keyword">import</span> android.widget.TextView;
-<span class="keyword">import</span> java.io.BufferedReader;
-<span class="keyword">import</span> java.io.BufferedWriter;
-<span class="keyword">import</span> java.io.InputStream;
-<span class="keyword">import</span> java.io.InputStreamReader;
-<span class="keyword">import</span> java.io.OutputStream;
-<span class="keyword">import</span> java.io.OutputStreamWriter;
-<span class="keyword">import</span> java.net.ServerSocket;
-<span class="keyword">import</span> java.net.Socket;
-
-<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SocketService</span> <span class="keyword">extends</span> <span class="title">IntentService</span> </span>{
-    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String ACTION_MyIntentService = <span class="string">"com.example.user.myapplication.RESPONSE"</span>;
-    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String ACTION_MyUpdate = <span class="string">"com.example.user.myapplication.UPDATE"</span>;
-    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String EXTRA_KEY_IN = <span class="string">"EXTRA_IN"</span>;
-    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String EXTRA_KEY_OUT = <span class="string">"EXTRA_OUT"</span>;
-    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String EXTRA_KEY_UPDATE = <span class="string">"EXTRA_UPDATE"</span>;
-    <span class="keyword">private</span> Context context;
-    <span class="keyword">private</span> String name; 
-    <span class="keyword">private</span> <span class="keyword">int</span> Port = <span class="number">10090</span>;
-    <span class="keyword">private</span> ServerSocket server_socket;
-    <span class="keyword">private</span> Socket socket;
-    <span class="keyword">private</span> InputStream in;
-    <span class="keyword">private</span> OutputStream out;
-    <span class="keyword">private</span> BufferedReader reader; 
-    <span class="keyword">private</span> String messgae = <span class="keyword">null</span>;
-    <span class="function"><span class="keyword">public</span> <span class="title">SocketService</span><span class="params">()</span> </span>{
-        <span class="keyword">super</span>(<span class="string">"SocketService"</span>);
-        <span class="comment">// TODO Auto-generated constructor stub</span>
-    }
-    <span class="function"><span class="keyword">public</span> <span class="title">SocketService</span><span class="params">(Context context, String name)</span> </span>{       
-        <span class="keyword">super</span>(<span class="string">"SocketService"</span>);
-        <span class="keyword">this</span>.context = context;
-        <span class="keyword">this</span>.name = name;
-    }
-    <span class="meta">@Override</span>
-    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onHandleIntent</span><span class="params">(Intent intent)</span> </span>{
-        <span class="comment">// TODO Auto-generated method stub</span>
-        <span class="keyword">while</span> (<span class="keyword">true</span>) {
-            <span class="keyword">try</span> {              
-                socket = server_socket.accept(); 
-                in = socket.getInputStream();
-                reader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(in));
-                messgae = reader.readLine();  
-                Intent intentResponse = <span class="keyword">new</span> Intent();
-                intentResponse.setAction(ACTION_MyIntentService);
-                intentResponse.addCategory(Intent.CATEGORY_DEFAULT);
-                intentResponse.putExtra(EXTRA_KEY_OUT, messgae.toString());
-                sendBroadcast(intentResponse);
-            } <span class="keyword">catch</span> (Exception e) {
-                e.printStackTrace();
-                Log.i(<span class="string">"service exception"</span>, e.getMessage());
-            }
-        }
-    } 
-    <span class="meta">@Override</span>
-    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>{
-        <span class="comment">// TODO Auto-generated method stub</span>
-        <span class="keyword">super</span>.onCreate();
-        <span class="keyword">try</span> {
-            server_socket = <span class="keyword">new</span> ServerSocket(Port); 
-        } <span class="keyword">catch</span> (Exception e) {
-            <span class="comment">// TODO Auto-generated catch block</span>
-            e.printStackTrace(); 
-        }
-    }
-    <span class="meta">@Override</span>
-    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>{
-        <span class="comment">// TODO Auto-generated method stub</span>
-        <span class="keyword">super</span>.onDestroy();
-    }
-}
-</code></pre>
-<p><strong><em>AndroidManifest.xml</em></strong></p>
-<pre><code class="java">&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.user.myapplication" &gt;
-    &lt;uses-permission android:name="android.permission.INTERNET"/&gt;
-    &lt;uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /&gt;
-    &lt;uses-permission android:name="android.permission.INTERNET"/&gt;
-    &lt;application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme" &gt;
-        &lt;activity android:name=".MainActivity" &gt;
-            &lt;intent-filter&gt;
-                &lt;action android:name="android.intent.action.MAIN" /&gt;
-                &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
-            &lt;/intent-filter&gt;
-        &lt;/activity&gt;
-        &lt;service android:name=".SocketService" &gt;
-        &lt;/service&gt;
-    &lt;/application&gt;
-&lt;/manifest&gt;
-</code></pre>
-<h2 id="*-1"><a href="#*-1" class="headerlink" title="*"></a><em>*</em></h2><img src="/2016/02/04/Virtual-android-phones/Screenshot2.png" alt="run" title="run">
-<p><strong>2, Android VM send a message once finishing satrt -&gt; Server receive the message</strong></p>
-<p>~ TODO ~</p>
-<h3 id="Use_simple-web-vnc"><a href="#Use_simple-web-vnc" class="headerlink" title="Use simple-web-vnc"></a><strong>Use simple-web-vnc</strong></h3><p>First, get the application window name.</p>
-<p><strong>$ xwininfo -root -tree | grep VirtualBox</strong><br>0x4000001 “VirtualBox”: (“VirtualBox” “VirtualBox”)  10x10+10+10  +10+10<br>0x1a0000c “Oracle VM VirtualBox Manager”: (“VirtualBox” “VirtualBox”)  975x513+0+0  +765+196<br>0x420000c <strong>“Android [Running] - Oracle VM VirtualBox”:</strong> (“VirtualBox” “VirtualBox”)  800x622+0+0  +238+176</p>
-<p>Modify code in <a href="https://github.com/ChihChengYang/simple-web-vnc" title="Simple-web-vnc" target="_blank" rel="external">Simple-web-vnc</a><br><strong><em>server.go</em></strong></p>
-<pre><code class="go"><span class="keyword">func</span> (conn *connection) appStreaming() { 
-    windowName :=  <span class="string">"Android [Running] - Oracle VM VirtualBox"</span> 
-    wn := C.CString(windowName)
-    conn.appHandle = C.app_create(<span class="number">1024</span>, <span class="number">0</span>,<span class="number">0</span>, <span class="number">800</span>, <span class="number">600</span>, wn);
-    ...
-}
-</code></pre>
-<p><strong><em>Notice: Mouse position mapping still has some problems between Android VM and canvas !!!</em></strong></p>
-<p><strong>Demo</strong></p>
-<iframe width="640" height="360" src="https://www.youtube.com/embed/XzA04D46GvY" frameborder="0" allowfullscreen></iframe>
-
-
-
-
-
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
 
 <nav id="pagination">
   
@@ -845,7 +687,7 @@ DB_TABLE = <span class="string">'tableName'</span>
   
   <div class="widget tag">
     <h3 class="title">Archives</h3>
-    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">2016.06</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">2016.05</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">2016.04</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">2016.03</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">2016.09</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">2016.06</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">2016.05</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">2016.04</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">2016.03</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
   </div>
 
 
@@ -856,7 +698,9 @@ DB_TABLE = <span class="string">'tableName'</span>
   
     <li><a href="/categories/Algorithm/">Algorithm</a><small>1</small></li>
   
-    <li><a href="/categories/Coding/">Coding</a><small>13</small></li>
+    <li><a href="/categories/BIM/">BIM</a><small>0</small></li>
+  
+    <li><a href="/categories/Coding/">Coding</a><small>14</small></li>
   
     <li><a href="/categories/Machine-Learning/">Machine Learning</a><small>3</small></li>
   
@@ -875,7 +719,7 @@ DB_TABLE = <span class="string">'tableName'</span>
   
     <li><a href="/tags/android/">android</a><small>1</small></li>
   
-    <li><a href="/tags/c-c/">c/c++</a><small>1</small></li>
+    <li><a href="/tags/c-c/">c/c++</a><small>2</small></li>
   
     <li><a href="/tags/c3-js/">c3.js</a><small>2</small></li>
   
@@ -883,7 +727,7 @@ DB_TABLE = <span class="string">'tableName'</span>
   
     <li><a href="/tags/docker/">docker</a><small>6</small></li>
   
-    <li><a href="/tags/golang/">golang</a><small>4</small></li>
+    <li><a href="/tags/golang/">golang</a><small>5</small></li>
   
     <li><a href="/tags/influxDB/">influxDB</a><small>2</small></li>
   
