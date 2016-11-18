@@ -1,0 +1,246 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<a href="https://github.com/ChihChengYang" target="_blank">
+<img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub">
+</a>
+  <meta charset="utf-8">
+  
+  <title>Onvif | Jeff Yang</title>
+  <meta name="author" content="Jeff Yang">
+  
+  <meta name="description" content="c golang docker mysql">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Onvif"/>
+  <meta property="og:site_name" content="Jeff Yang"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="Jeff Yang" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">Jeff Yang</a></h1>
+  <h2><a href="/">Enjoy my coding life</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2016-11-18T10:00:00.000Z"><a href="/2016/11/18/Onvif/">2016-11-18</a></time>
+      
+      
+  
+    <h1 class="title">Onvif</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>I spent a few days to study and implement Onvif of server side. Some important points were recorded as below:</p>
+<h2 id="u6E96_u5099_3A"><a href="#u6E96_u5099_3A" class="headerlink" title="準備:"></a>準備:</h2><p>&ensp;開發編譯皆在virtualbox ubuntu 64bit<br>&ensp;&ensp; download gsoap<br>&ensp;&ensp; 安裝 openssl and libssl-dev: sudo apt-get install openssl libssl-dev<br>&ensp;&ensp; 安裝 bison and flex: sudo apt-get install flex bison<br>&ensp;&ensp; ./configure<br>&ensp;&ensp; make &amp; make install<br>&ensp;兩種主要測試工具,安裝在windows:<br>&ensp;&ensp;ONVIF Device TestTool v13.12 (not free,自行google)<br>&ensp;&ensp;ONVIF Device Manager (free)</p>
+<h2 id="u8AAA_u660E_3A"><a href="#u8AAA_u660E_3A" class="headerlink" title="說明:"></a>說明:</h2><blockquote>
+<p>Onvif 主要是透過SOAP和XML進行server和client間溝通<br>這裡server和client和一般想像中的有點不同<br>server指的是設備端像是IPCAM之類,client指的是管理端一般是NVR軟體<br>gSOAP目的,透過gSOAP可以編譯出server或client的C或C++介面<br>利用gSOAP編譯出來的介面,其中的struct會對應規格書定義,<br>只要按照規格書定義對struct填入該填的值,client&amp;server就可以快樂溝通了?! </p>
+</blockquote>
+<h2 id="u5BE6_u4F5C_3A"><a href="#u5BE6_u4F5C_3A" class="headerlink" title="實作:"></a>實作:</h2><p><a href="http://www.onvif.org/Portals/0/documents/WhitePapers/ONVIF_WG-APG-Application_Programmer%27s_Guide.pdf" target="_blank" rel="external">http://www.onvif.org/Portals/0/documents/WhitePapers/ONVIF_WG-APG-Application_Programmer%27s_Guide.pdf</a><br>規格書定義參數 <a href="http://www.onvif.org/onvif/ver20/util/operationindex.html" target="_blank" rel="external">http://www.onvif.org/onvif/ver20/util/operationindex.html</a><br>gSOAP編譯步驟:<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wsdl2h -cegxy -o onvif.h -t /home/jeff/gsoap-<span class="number">2.8</span>/gsoap/typemap.dat http:<span class="comment">//docs.oasis-open.org/ws-dd/discovery/1.1/os/wsdd-discovery-1.1-wsdl-os.wsdl http://www.w3.org/2006/03/addressing/ws-addr.xsd http://www.onvif.org/onvif/ver10/device/wsdl/devicemgmt.wsdl   </span></span><br><span class="line">soapcpp2 -S -x -I /home/jeff/gsoap-<span class="number">2.8</span>/gsoap/import -I /home/jeff/gsoap-<span class="number">2.8</span>/gsoap/ onvif.h</span><br></pre></td></tr></table></figure><br>以上,-c產生C語言格式,typemap.dat裡面定義XML namespace prefixes and type bindings,可以自行定義<br>然後,依據各個wsdl檔案定義去產生onvif.h<br>onvif.透過soapcpp2 產生出一些.c檔,-S只產生server端的定義檔  </p>
+<p>其中,<br><strong><em> soapStub.h </em></strong><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/******************************************************************************\</span><br><span class="line"> *                                                                            *</span><br><span class="line"> * Server-Side Operations                                                     *</span><br><span class="line"> *                                                                            *</span><br><span class="line">\******************************************************************************/</span></span><br><span class="line">    <span class="comment">/** Web service operation '__tds__GetServices' (returns SOAP_OK or error code) */</span></span><br><span class="line">    SOAP_FMAC5 <span class="keyword">int</span> SOAP_FMAC6 __tds__GetServices(<span class="keyword">struct</span> soap*, <span class="keyword">struct</span> _tds__GetServices *tds__GetServices, <span class="keyword">struct</span> _tds__GetServicesResponse *tds__GetServicesResponse);</span><br><span class="line">    <span class="comment">/** Web service operation '__tds__GetServiceCapabilities' (returns SOAP_OK or error code) */</span></span><br><span class="line">    SOAP_FMAC5 <span class="keyword">int</span> SOAP_FMAC6 __tds__GetServiceCapabilities(<span class="keyword">struct</span> soap*, <span class="keyword">struct</span> _tds__GetServiceCapabilities *tds__GetServiceCapabilities, <span class="keyword">struct</span> _tds__GetServiceCapabilitiesResponse *tds__GetServiceCapabilitiesResponse);</span><br><span class="line">    <span class="comment">/** Web service operation '__tds__GetDeviceInformation' (returns SOAP_OK or error code) */</span></span><br><span class="line">    SOAP_FMAC5 <span class="keyword">int</span> SOAP_FMAC6 __tds__GetDeviceInformation(<span class="keyword">struct</span> soap*, <span class="keyword">struct</span> _tds__GetDeviceInformation *tds__GetDeviceInformation, <span class="keyword">struct</span> _tds__GetDeviceInformationResponse *tds__GetDeviceInformationResponse);</span><br><span class="line">	........</span><br></pre></td></tr></table></figure>  </p>
+<p>這些就是需要實作的部分,依據wsdl數量所產生,也許超過百個函式以上<br><br \=""><br><img src="/2016/11/18/Onvif/1.png" alt="ONVIF Device TestTool" title="ONVIF Device TestTool"></p>
+<p>ONVIF Device TestTool 是模擬client端的測試動作和一些Debug用的XML輸出<br><br \=""><br><strong>Device Service Address: <a href="http://192.168.56.101:80/onvif/device_service" target="_blank" rel="external">http://192.168.56.101:80/onvif/device_service</a> check </strong><br>其對應的是devicemgmt.wsdl中的GetDeviceInformation<br>所以server端所要做的就是把對接口準備好(TCP,port可以自己定,但規格書要說用80比較好,避免防火牆)<br>此部分socket可自行實作或交由soap_bind完成</p>
+<p><strong><em> main.c </em></strong><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;time.h&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span> </span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;pthread.h&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;sys/msg.h&gt;</span> </span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">"mySoapStub.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">pthread_mutex_t</span> mutex = PTHREAD_MUTEX_INITIALIZER;      </span><br><span class="line"><span class="keyword">int</span> thread_ret=<span class="number">0</span>, thread_no=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> &#123;</span><br><span class="line">   <span class="keyword">pthread_t</span> thread_tid;</span><br><span class="line">   <span class="keyword">long</span> thread_count;</span><br><span class="line">&#125;tThread;</span><br><span class="line">tThread tptr[<span class="number">2</span>]; </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">tcpThread</span><span class="params">(<span class="keyword">void</span>* data)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> _server(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv);</span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span>&#123;</span><br><span class="line">    _server(argc, argv); </span><br><span class="line">   <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">tcpThread</span><span class="params">(<span class="keyword">void</span>* data)</span></span>&#123;   </span><br><span class="line">   <span class="keyword">int</span> m, s;</span><br><span class="line">   <span class="keyword">struct</span> soap tcpSoap;  </span><br><span class="line">   pthread_detach(pthread_self());      </span><br><span class="line">   soap_init(&amp;tcpSoap);    </span><br><span class="line">   <span class="comment">// soap_set_namespaces(&amp;add_soap, namespaces);    </span></span><br><span class="line">   m = soap_bind(&amp;tcpSoap, <span class="literal">NULL</span>, <span class="number">80</span>, <span class="number">100</span>);    </span><br><span class="line">   <span class="keyword">if</span> (m &lt; <span class="number">0</span>) &#123;    </span><br><span class="line">      soap_print_fault(&amp;tcpSoap, <span class="built_in">stderr</span>);    </span><br><span class="line">      <span class="built_in">exit</span>(-<span class="number">1</span>);    </span><br><span class="line">   &#125;    </span><br><span class="line">   <span class="keyword">while</span>(<span class="number">1</span>)&#123;                  </span><br><span class="line">      s = soap_accept(&amp;tcpSoap);    </span><br><span class="line">      <span class="keyword">if</span> (s &lt; <span class="number">0</span>) &#123;    </span><br><span class="line">         soap_print_fault(&amp;tcpSoap, <span class="built_in">stderr</span>);    </span><br><span class="line">         <span class="built_in">exit</span>(-<span class="number">1</span>);    </span><br><span class="line">      &#125;    </span><br><span class="line">      <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">"Socket connection successful: slave socket = %d\n"</span>, s);    </span><br><span class="line">      soap_serve(&amp;tcpSoap);    </span><br><span class="line">      soap_end(&amp;tcpSoap); </span><br><span class="line">      usleep(<span class="number">500000</span>);</span><br><span class="line">   &#125; </span><br><span class="line">   pthread_exit (<span class="string">"thread all done"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> _server(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)&#123; </span><br><span class="line">   thread_ret=pthread_create( &amp;tptr[thread_no].thread_tid, <span class="literal">NULL</span>, (<span class="keyword">void</span> *) tcpThread, (<span class="keyword">void</span>*)&amp;thread_no );</span><br><span class="line">   <span class="keyword">if</span>(thread_ret!=<span class="number">0</span>)&#123;</span><br><span class="line">      <span class="built_in">fprintf</span> (<span class="built_in">stderr</span>, <span class="string">"Create pthread error~~~\n"</span>);</span><br><span class="line">      <span class="built_in">exit</span> (<span class="number">1</span>);</span><br><span class="line">   &#125;</span><br><span class="line">   thread_no++;   </span><br><span class="line">   <span class="keyword">while</span>(<span class="number">1</span>)&#123;&#125;</span><br><span class="line">             usleep(<span class="number">500000</span>);</span><br><span class="line">      </span><br><span class="line">   &#125;   </span><br><span class="line">   pthread_mutex_destroy(&amp;mutex);</span><br><span class="line">   <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>  </p>
+<p>還有把對應函式準備好,也就是實作soapStub.h裡面的<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SOAP_FMAC5 <span class="keyword">int</span> SOAP_FMAC6 __tds__GetDeviceInformation(...)</span><br></pre></td></tr></table></figure> </p>
+<p><strong><em> mySoapStub.c </em></strong><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Web service operation '__tds__GetDeviceInformation' (returns SOAP_OK or error code) */</span></span><br><span class="line">SOAP_FMAC5 <span class="keyword">int</span> SOAP_FMAC6 __tds__GetDeviceInformation(<span class="keyword">struct</span> soap *pSoap, <span class="keyword">struct</span> _tds__GetDeviceInformation *tds__GetDeviceInformation, <span class="keyword">struct</span> _tds__GetDeviceInformationResponse *tds__GetDeviceInformationResponse)&#123; </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"\n"</span>);</span><br><span class="line">    tds__GetDeviceInformationResponse-&gt;Manufacturer=(<span class="keyword">char</span>*)soap_malloc(pSoap,<span class="number">100</span>);</span><br><span class="line">    tds__GetDeviceInformationResponse-&gt;Model=(<span class="keyword">char</span>*)soap_malloc(pSoap,<span class="number">100</span>);</span><br><span class="line">    tds__GetDeviceInformationResponse-&gt;FirmwareVersion=(<span class="keyword">char</span>*)soap_malloc(pSoap,<span class="number">100</span>);</span><br><span class="line">    tds__GetDeviceInformationResponse-&gt;SerialNumber=(<span class="keyword">char</span>*)soap_malloc(pSoap,<span class="number">100</span>);</span><br><span class="line">    tds__GetDeviceInformationResponse-&gt;HardwareId=(<span class="keyword">char</span>*)soap_malloc(pSoap,<span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">strcpy</span>(tds__GetDeviceInformationResponse-&gt;Manufacturer,<span class="string">"Jeff Yang"</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(tds__GetDeviceInformationResponse-&gt;Model,<span class="string">"Jeff Yang XXXX"</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(tds__GetDeviceInformationResponse-&gt;FirmwareVersion,<span class="string">"v1.0.0.01"</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(tds__GetDeviceInformationResponse-&gt;SerialNumber,<span class="string">"88998998888888"</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(tds__GetDeviceInformationResponse-&gt;HardwareId,<span class="string">"123456789999"</span>);</span><br><span class="line">    <span class="keyword">return</span> SOAP_OK;    </span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/** Web service operation '__tds__SetSystemDateAndTime' (returns SOAP_OK or error code) */</span></span><br><span class="line">SOAP_FMAC5 <span class="keyword">int</span> SOAP_FMAC6 __tds__SetSystemDateAndTime(<span class="keyword">struct</span> soap *pSoap, <span class="keyword">struct</span> _tds__SetSystemDateAndTime *tds__SetSystemDateAndTime, <span class="keyword">struct</span> _tds__SetSystemDateAndTimeResponse *tds__SetSystemDateAndTimeResponse)&#123; <span class="keyword">return</span> SOAP_OK; &#125;</span><br><span class="line">....</span><br></pre></td></tr></table></figure>  </p>
+<p>其他未使用到的函式,也需要填個回傳值否則將編譯錯誤<br>編譯,<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc  -c -o mySoapStub.o mySoapStub.c</span><br><span class="line">gcc  soapC.o soapServer.o stdsoap2.o main.o duration.o mySoapStub.o  -lpthread -o ws-server</span><br></pre></td></tr></table></figure>  </p>
+<p>把server端程式run起來,當按check時TestTool就會收到回傳值<br><br \=""><br><img src="/2016/11/18/Onvif/2.png" alt="ONVIF Device TestTool" title="ONVIF Device TestTool"><br><br \=""><br>以上,都是在已知server的IP和port情況下進行, e.g. <a href="http://192.168.56.101:80/onvif/device_service" target="_blank" rel="external">http://192.168.56.101:80/onvif/device_service</a><br><br \=""><br>一個client可以同時監控多個server<br>所以要一次得知單一或多個server的IP資訊需要透過multicast的方式(Discover Devices)<br>經由傳送資料到 239.255.255.250 port 3702(ws-discovery)<br>若網路上存在server,會回應此訊息<br>此部分可以參考<br><a href="http://albert-oma.blogspot.tw/2013/09/onvif-ws-discovery-implementation.html" target="_blank" rel="external">http://albert-oma.blogspot.tw/2013/09/onvif-ws-discovery-implementation.html</a><br><a href="http://albert-oma.blogspot.tw/2013/09/onvif-ws-discovery-spec.html" target="_blank" rel="external">http://albert-oma.blogspot.tw/2013/09/onvif-ws-discovery-spec.html</a> (A Introduction in Chinese) </p>
+<h2 id="u5C0F_u7D50_3A"><a href="#u5C0F_u7D50_3A" class="headerlink" title="小結:"></a>小結:</h2><p>符合ONVIF標準的client端(NVR)與server端(Devices),其包含兩主要流程<br>1.自動偵測Devices (multicast)<br>2.設定和取得Device資訊 (tcp)<br>將兩流程分別整合在server和client端,就可以使兩者以ONVIF標準方式進行溝通</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/Coding/">Coding</a>, <a href="/categories/Coding/Onvif/">Onvif</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/c-c/">c/c++</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">Komentarze</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://chihchengyang.github.io/2016/11/18/Onvif/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Szukaj">
+    <input type="hidden" name="q" value="site:chihchengyang.github.io">
+  </form>
+</div>
+
+  
+  <div class="widget tag">
+    <h3 class="title">Archives</h3>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">2016.11</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">2016.09</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">2016.06</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">2016.05</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">2016.04</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">2016.03</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+  </div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">Kategorie</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/Algorithm/">Algorithm</a><small>1</small></li>
+  
+    <li><a href="/categories/Coding/">Coding</a><small>15</small></li>
+  
+    <li><a href="/categories/Machine-Learning/">Machine Learning</a><small>3</small></li>
+  
+    <li><a href="/categories/Coding/Onvif/">Onvif</a><small>1</small></li>
+  
+    <li><a href="/categories/Others/">Others</a><small>1</small></li>
+  
+    <li><a href="/categories/Tools/">Tools</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">Tagi</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/android/">android</a><small>1</small></li>
+  
+    <li><a href="/tags/c-c/">c/c++</a><small>3</small></li>
+  
+    <li><a href="/tags/c3-js/">c3.js</a><small>2</small></li>
+  
+    <li><a href="/tags/django/">django</a><small>1</small></li>
+  
+    <li><a href="/tags/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/tags/golang/">golang</a><small>5</small></li>
+  
+    <li><a href="/tags/influxDB/">influxDB</a><small>2</small></li>
+  
+    <li><a href="/tags/ipmi/">ipmi</a><small>1</small></li>
+  
+    <li><a href="/tags/javascript/">javascript</a><small>5</small></li>
+  
+    <li><a href="/tags/python/">python</a><small>9</small></li>
+  
+    <li><a href="/tags/r/">r</a><small>1</small></li>
+  
+    <li><a href="/tags/react/">react</a><small>1</small></li>
+  
+    <li><a href="/tags/supervisord/">supervisord</a><small>3</small></li>
+  
+    <li><a href="/tags/tools/">tools</a><small>3</small></li>
+  
+    <li><a href="/tags/tornado/">tornado</a><small>2</small></li>
+  
+    <li><a href="/tags/vm/">vm</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 Jeff Yang
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
