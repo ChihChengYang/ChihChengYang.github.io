@@ -79,7 +79,7 @@
 <p><strong><em> mySoapStub.c </em></strong><br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Web service operation '__tds__GetDeviceInformation' (returns SOAP_OK or error code) */</span></span><br><span class="line">SOAP_FMAC5 <span class="keyword">int</span> SOAP_FMAC6 __tds__GetDeviceInformation(<span class="keyword">struct</span> soap *pSoap, <span class="keyword">struct</span> _tds__GetDeviceInformation *tds__GetDeviceInformation, <span class="keyword">struct</span> _tds__GetDeviceInformationResponse *tds__GetDeviceInformationResponse)&#123; </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"\n"</span>);</span><br><span class="line">    tds__GetDeviceInformationResponse-&gt;Manufacturer=(<span class="keyword">char</span>*)soap_malloc(pSoap,<span class="number">100</span>);</span><br><span class="line">    tds__GetDeviceInformationResponse-&gt;Model=(<span class="keyword">char</span>*)soap_malloc(pSoap,<span class="number">100</span>);</span><br><span class="line">    tds__GetDeviceInformationResponse-&gt;FirmwareVersion=(<span class="keyword">char</span>*)soap_malloc(pSoap,<span class="number">100</span>);</span><br><span class="line">    tds__GetDeviceInformationResponse-&gt;SerialNumber=(<span class="keyword">char</span>*)soap_malloc(pSoap,<span class="number">100</span>);</span><br><span class="line">    tds__GetDeviceInformationResponse-&gt;HardwareId=(<span class="keyword">char</span>*)soap_malloc(pSoap,<span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">strcpy</span>(tds__GetDeviceInformationResponse-&gt;Manufacturer,<span class="string">"Jeff Yang"</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(tds__GetDeviceInformationResponse-&gt;Model,<span class="string">"Jeff Yang XXXX"</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(tds__GetDeviceInformationResponse-&gt;FirmwareVersion,<span class="string">"v1.0.0.01"</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(tds__GetDeviceInformationResponse-&gt;SerialNumber,<span class="string">"88998998888888"</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(tds__GetDeviceInformationResponse-&gt;HardwareId,<span class="string">"123456789999"</span>);</span><br><span class="line">    <span class="keyword">return</span> SOAP_OK;    </span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/** Web service operation '__tds__SetSystemDateAndTime' (returns SOAP_OK or error code) */</span></span><br><span class="line">SOAP_FMAC5 <span class="keyword">int</span> SOAP_FMAC6 __tds__SetSystemDateAndTime(<span class="keyword">struct</span> soap *pSoap, <span class="keyword">struct</span> _tds__SetSystemDateAndTime *tds__SetSystemDateAndTime, <span class="keyword">struct</span> _tds__SetSystemDateAndTimeResponse *tds__SetSystemDateAndTimeResponse)&#123; <span class="keyword">return</span> SOAP_OK; &#125;</span><br><span class="line">....</span><br></pre></td></tr></table></figure>  </p>
 <p>其他未使用到的函式,也需要填個回傳值否則將編譯錯誤<br>編譯,<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc  -c -o mySoapStub.o mySoapStub.c</span><br><span class="line">gcc  soapC.o soapServer.o stdsoap2.o main.o duration.o mySoapStub.o  -lpthread -o ws-server</span><br></pre></td></tr></table></figure>  </p>
 <p>把server端程式run起來,當按check時TestTool就會收到回傳值<br><br \=""><br><img src="/2016/11/18/Onvif/2.png" alt="ONVIF Device TestTool" title="ONVIF Device TestTool"><br><br \=""><br>以上,都是在已知server的IP和port情況下進行, e.g. <a href="http://192.168.56.101:80/onvif/device_service" target="_blank" rel="external">http://192.168.56.101:80/onvif/device_service</a><br><br \=""><br>一個client可以同時監控多個server<br>所以要一次得知單一或多個server的IP資訊需要透過multicast的方式(Discover Devices)<br>經由傳送資料到 239.255.255.250 port 3702(ws-discovery)<br>若網路上存在server,會回應此訊息<br>此部分可以參考<br><a href="http://albert-oma.blogspot.tw/2013/09/onvif-ws-discovery-implementation.html" target="_blank" rel="external">http://albert-oma.blogspot.tw/2013/09/onvif-ws-discovery-implementation.html</a><br><a href="http://albert-oma.blogspot.tw/2013/09/onvif-ws-discovery-spec.html" target="_blank" rel="external">http://albert-oma.blogspot.tw/2013/09/onvif-ws-discovery-spec.html</a> (A Introduction in Chinese) </p>
-<h2 id="u5C0F_u7D50_3A"><a href="#u5C0F_u7D50_3A" class="headerlink" title="小結:"></a>小結:</h2><p>符合ONVIF標準的client端(NVR)與server端(Devices),其包含兩主要流程<br>1.自動偵測Devices (multicast)<br>2.設定和取得Device資訊 (tcp)<br>將兩流程分別整合在server和client端,就可以使兩者以ONVIF標準方式進行溝通</p>
+<h2 id="u5C0F_u7D50_3A"><a href="#u5C0F_u7D50_3A" class="headerlink" title="小結:"></a>小結:</h2><p>符合ONVIF標準的client端(NVR)與server端(Devices),其包含兩主要流程<br>1.自動偵測Devices (multicast)<br>2.設定和取得Device資訊 (tcp)<br>將兩流程皆整合在server以及client端,相互對應,就可以使兩者以ONVIF標準方式進行溝通</p>
 
       
     </div>
@@ -683,14 +683,14 @@ DB_TABLE = <span class="string">'tableName'</span>
 <nav id="pagination">
   
   
-    <a href="/page/2/" class="alignright next">Następna</a>
+    <a href="/page/2/" class="alignright next">下一頁</a>
   
   <div class="clearfix"></div>
 </nav></div></div>
     <aside id="sidebar" class="alignright">
   <div class="search">
   <form action="//google.com/search" method="get" accept-charset="utf-8">
-    <input type="search" name="q" results="0" placeholder="Szukaj">
+    <input type="search" name="q" results="0" placeholder="搜尋">
     <input type="hidden" name="q" value="site:chihchengyang.github.io">
   </form>
 </div>
@@ -704,7 +704,7 @@ DB_TABLE = <span class="string">'tableName'</span>
 
   
 <div class="widget tag">
-  <h3 class="title">Kategorie</h3>
+  <h3 class="title">分類</h3>
   <ul class="entry">
   
     <li><a href="/categories/Algorithm/">Algorithm</a><small>1</small></li>
@@ -725,7 +725,7 @@ DB_TABLE = <span class="string">'tableName'</span>
 
   
 <div class="widget tag">
-  <h3 class="title">Tagi</h3>
+  <h3 class="title">標籤</h3>
   <ul class="entry">
   
     <li><a href="/tags/android/">android</a><small>1</small></li>
