@@ -6,7 +6,7 @@
 </a>
   <meta charset="utf-8">
   
-  <title>彙整：2016/5 | Jeff Yang</title>
+  <title>HTML5 player for raw h.264 streams | Jeff Yang</title>
   <meta name="author" content="Jeff Yang">
   
   <meta name="description" content="c golang docker mysql">
@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  
+  <meta property="og:title" content="HTML5 player for raw h.264 streams"/>
   <meta property="og:site_name" content="Jeff Yang"/>
 
   
@@ -48,25 +48,90 @@
 <div class="clearfix"></div>
 </header>
   <div id="content" class="inner">
-    <div id="main-col" class="alignleft"><div id="wrapper">
-<h2 class="archive-title">2016/5</h2>
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2016-12-02T10:00:00.000Z"><a href="/2016/12/02/Html5-player-for-raw-h.264-streams/">2016-12-02</a></time>
+      
+      
+  
+    <h1 class="title">HTML5 player for raw h.264 streams</h1>
+  
 
+    </header>
+    <div class="entry">
+      
+        <p>要在網頁上播放影像串流有許多種方式.<br>常見的像是HLS, MPEG-DASH, RTMP with flash, vlc web plugin, motion JPEG…等等<br>以上都有其缺點<br>RTMP with flash =&gt; flash已陣亡<br>vlc web plugin =&gt; 不實用,用來測試還可以<br>motion JPEG =&gt; 簡單方便,但只是假的串流並不流暢<br>HLS,MPEG-DASH =&gt; 目前最理想的方式,兩者傳輸影像前需要先封裝(multiplex),因此對直播影像會有數秒不等的延遲.  </p>
+<p>HTML5 video tag 結合 MSE 可以直接播放 <a href="https://en.wikipedia.org/wiki/ISO_base_media_file_format" title="fragmented mp4" target="_blank" rel="external">fragmented mp4</a>格式影像<br>(fragmented mp4目前只可封裝H.264)  </p>
+<p>未來HLS也將支援fMP4傳送 <a href="https://en.wikipedia.org/wiki/HTTP_Live_Streaming" target="_blank" rel="external">https://en.wikipedia.org/wiki/HTTP_Live_Streaming</a><br>“On WWDC2016 Apple announced the inclusion of byte-range addressing for fragmented MP4 files, or fMP4,<br>allowing content to be played in HLS without the need to multiplex it into MPEG-2 Transport Stream.<br>The industry considered this as a step towards compatibility between HLS and MPEG-DASH”</p>
+<p>目前為解決直播影像數秒的延遲現象,於是參考<a href="https://github.com/dailymotion/hls.js" title="hls.js player" target="_blank" rel="external">hls.js player</a> 架構.<br>不傳送m3u8,直接傳送H.264然後在client端multiplex成fMP4,然後經由HTML5播放<br>這樣可以使延遲現象降低,不過也是有缺點像是無法利用CDN….端看需求與應用來取決  </p>
+<p>Source code:<br><a href="https://github.com/ChihChengYang/wfs.js" title="wfs.js" target="_blank" rel="external">wfs.js</a>  </p>
+<p>That demonstrates transmuxing NALu h.264 streams into fmp4 from websocket.<br>That works directly on top of a standard HTML5 element and MSE.Setting HTML5 video tag combines with MSE like creating mediaSource, mediaSource.addSourceBuffer, sourceBuffer.appendBuffer.<br>That will play video while buffer right feeds fmp4.</p>
 
-  <div class="archive">
-    
-      <article class="post">
-        <div class="post-content">
-          <header>
-            <div class="icon"></div>
-            <time datetime="2016-05-11T10:40:12.000Z"><a href="/2016/05/11/Building-Information-Modeling/">2016-05-11</a></time>
-            
-              <h1 class="title"><a href="/2016/05/11/Building-Information-Modeling/">Building Information Modeling - BIM</a></h1>
-            
-          </header>
-        </div>
-      </article>
-    
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/Coding/">Coding</a>
   </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/golang/">golang</a>, <a href="/tags/javascript/">javascript</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_google_plusone" g:plusone:size="medium"></a>
+    
+    
+      <a class="addthis_button_pinterest_pinit" pi:pinit:layout="horizontal"></a>
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+  <h1 class="title">留言</h1>
+
+  
+      <div id="fb-root"></div>
+<script>
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=123456789012345";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div class="fb-comments" data-href="http://chihchengyang.github.io/2016/12/02/Html5-player-for-raw-h.264-streams/index.html" data-num-posts="5" data-width="840" data-colorscheme="light"></div>
+      
+  
+</section>
+
 </div></div>
     <aside id="sidebar" class="alignright">
   <div class="search">

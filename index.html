@@ -55,6 +55,44 @@
     <header>
       
         <div class="icon"></div>
+        <time datetime="2016-12-02T10:00:00.000Z"><a href="/2016/12/02/Html5-player-for-raw-h.264-streams/">2016-12-02</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2016/12/02/Html5-player-for-raw-h.264-streams/">HTML5 player for raw h.264 streams</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>要在網頁上播放影像串流有許多種方式.<br>常見的像是HLS, MPEG-DASH, RTMP with flash, vlc web plugin, motion JPEG…等等<br>以上都有其缺點<br>RTMP with flash =&gt; flash已陣亡<br>vlc web plugin =&gt; 不實用,用來測試還可以<br>motion JPEG =&gt; 簡單方便,但只是假的串流並不流暢<br>HLS,MPEG-DASH =&gt; 目前最理想的方式,兩者傳輸影像前需要先封裝(multiplex),因此對直播影像會有數秒不等的延遲.  </p>
+<p>HTML5 video tag 結合 MSE 可以直接播放 <a href="https://en.wikipedia.org/wiki/ISO_base_media_file_format" title="fragmented mp4" target="_blank" rel="external">fragmented mp4</a>格式影像<br>(fragmented mp4目前只可封裝H.264)  </p>
+<p>未來HLS也將支援fMP4傳送 <a href="https://en.wikipedia.org/wiki/HTTP_Live_Streaming" target="_blank" rel="external">https://en.wikipedia.org/wiki/HTTP_Live_Streaming</a><br>“On WWDC2016 Apple announced the inclusion of byte-range addressing for fragmented MP4 files, or fMP4,<br>allowing content to be played in HLS without the need to multiplex it into MPEG-2 Transport Stream.<br>The industry considered this as a step towards compatibility between HLS and MPEG-DASH”</p>
+<p>目前為解決直播影像數秒的延遲現象,於是參考<a href="https://github.com/dailymotion/hls.js" title="hls.js player" target="_blank" rel="external">hls.js player</a> 架構.<br>不傳送m3u8,直接傳送H.264然後在client端multiplex成fMP4,然後經由HTML5播放<br>這樣可以使延遲現象降低,不過也是有缺點像是無法利用CDN….端看需求與應用來取決  </p>
+<p>Source code:<br><a href="https://github.com/ChihChengYang/wfs.js" title="wfs.js" target="_blank" rel="external">wfs.js</a>  </p>
+<p>That demonstrates transmuxing NALu h.264 streams into fmp4 from websocket.<br>That works directly on top of a standard HTML5 element and MSE.Setting HTML5 video tag combines with MSE like creating mediaSource, mediaSource.addSourceBuffer, sourceBuffer.appendBuffer.<br>That will play video while buffer right feeds fmp4.</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
         <time datetime="2016-11-24T10:00:12.000Z"><a href="/2016/11/24/Template-Matching/">2016-11-24</a></time>
       
       
@@ -460,118 +498,6 @@
 
 
 
-  <article class="post">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time datetime="2016-03-02T10:00:00.000Z"><a href="/2016/03/02/Regressor-Test-With-Skflow-And-Sklearn/">2016-03-02</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2016/03/02/Regressor-Test-With-Skflow-And-Sklearn/">Regressor test with Skflow and Sklearn</a></h1>
-  
-
-    </header>
-    <div class="entry">
-      
-        <p>Some regressor tests with <a href="https://github.com/tensorflow/skflow" title="skflow" target="_blank" rel="external">skflow</a> and <a href="http://scikit-learn.org/" title="sklearn" target="_blank" rel="external">sklearn</a></p>
-<p><strong><em>regressor.py</em></strong></p>
-<pre><code class="python"><span class="comment"># -*- coding: utf-8 -*-</span>
-<span class="keyword">import</span> pandas
-<span class="keyword">import</span> numpy <span class="keyword">as</span> np
-<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
-<span class="keyword">from</span> pylab <span class="keyword">import</span> savefig
-<span class="keyword">from</span> sklearn <span class="keyword">import</span> datasets, cross_validation, metrics
-<span class="keyword">from</span> sklearn <span class="keyword">import</span> preprocessing
-
-<span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> SVR
-<span class="keyword">from</span> sklearn <span class="keyword">import</span> ensemble
-<span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> RandomForestRegressor
-<span class="keyword">import</span> skflow
-<span class="comment">########################################################</span>
-<span class="comment"># Set data</span>
-boston = datasets.load_boston()
-X, y = boston.data, boston.target
-<span class="comment"># Split dataset into train / test</span>
-X_train, X_test, y_train, y_test = cross_validation.train_test_split(X, y,
-    test_size=<span class="number">0.1</span>, random_state=<span class="number">42</span>)
-scaler = preprocessing.StandardScaler()
-X_train = scaler.fit_transform(X_train)
-<span class="comment">########################################################</span>
-<span class="comment"># Fit regression model</span>
-<span class="comment"># 1. SVR </span>
-regressor = SVR(kernel=<span class="string">'rbf'</span>, C=<span class="number">1000</span>, gamma=<span class="string">'auto'</span>)
-<span class="comment"># 2. Gradient Boosting</span>
-<span class="string">"""
-params = {'n_estimators': 500, 'max_depth': 4, 'min_samples_split': 1,
-          'learning_rate': 0.01, 'loss': 'ls'}
-regressor = ensemble.GradientBoostingRegressor(**params)
-"""</span>
-<span class="comment"># 3. Random Forest</span>
-<span class="string">"""
-regressor = RandomForestRegressor(n_estimators=200, min_samples_split=1)
-"""</span>
-<span class="comment"># 4. DNN</span>
-<span class="string">"""
-regressor = skflow.TensorFlowDNNRegressor(hidden_units=[10, 10, 10],
-    steps=20000, learning_rate=0.01, batch_size=13)
-"""</span>        
-<span class="comment">########################################################</span>
-<span class="comment"># Train and Predict</span>
-regressor.fit(X_train, y_train) 
-score = metrics.mean_squared_error(regressor.predict(scaler.transform(X_test)), y_test)
-X_ty = regressor.predict(X_train)
-score1 = metrics.mean_squared_error(X_ty, y_train)
-
-print(<span class="string">'Test MSE: {0:f}'</span>.format(score))
-print(<span class="string">'Train MSE: {0:f}'</span>.format(score1))
-<span class="comment">########################################################</span>
-<span class="comment"># Look at the results</span>
-<span class="string">"""    
-fig,ax = plt.subplots()
-ax.scatter(y_train, X_ty)
-ax.plot([y_train.min(), y_train.max()], [y_train.min(), y_train.max()], 'k--', lw=4)
-ax.set_xlabel('Measured')
-ax.set_ylabel('Predicted')
-plt.show()  
-"""</span>
-<span class="string">"""        
-savefig('result.png') 
-"""</span>
-</code></pre>
-<img src="/2016/03/02/Regressor-Test-With-Skflow-And-Sklearn/result.png" alt="Look at the results" title="Look at the results">
-<p><strong><em>Data preprocessing</em></strong><br>pw.csv from <a href="http://archive.ics.uci.edu/ml/datasets/Individual+household+electric+power+consumption" title="Individual household electric power consumption Data Set" target="_blank" rel="external">Data Set</a></p>
-<p>Date,Time,Global_active_power,Global_reactive_power,Voltage,Global_intensity,Sub_metering_1,<br>Sub_metering_2,Sub_metering_3<br>16/12/2006,17:24:00,4.216,0.418,234.840,18.400,0.000,1.000,17.000<br>…</p>
-<pre><code>data = pandas.read_csv(&apos;pw.csv&apos;)
-X = data[[&apos;Date&apos;,&apos;Time&apos;,&apos;Global_reactive_power&apos;,&apos;Voltage&apos;,&apos;Global_intensity&apos;,&apos;Sub_metering_1&apos;,
-&apos;Sub_metering_2&apos;,&apos;Sub_metering_3&apos;]]
-y = data[&apos;Global_active_power&apos;]
-
-D = (pandas.to_datetime(X[&quot;Date&quot;], format=&quot;%d/%m/%Y&quot;))
-X[&quot;Month&quot;] = D.apply(lambda x: x.month)
-X = X.drop([&quot;Date&quot;], axis=1)
-
-T = (pandas.to_datetime(X[&quot;Time&quot;], format=&quot;%H:%M:%S&quot;))
-X[&quot;Hour&quot;] = T.apply(lambda x: x.hour)
-X = X.drop([&quot;Time&quot;], axis=1)
-</code></pre>
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
-
-
-
-
 
 <nav id="pagination">
   
@@ -591,7 +517,7 @@ X = X.drop([&quot;Time&quot;], axis=1)
   
   <div class="widget tag">
     <h3 class="title">Archives</h3>
-    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">2016.11</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">2016.09</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">2016.06</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">2016.05</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">2016.04</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">2016.03</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
+    <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">2016.12</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">2016.11</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">2016.09</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">2016.06</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">2016.05</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">2016.04</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">2016.03</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">2016.02</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">2016.01</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">2015.12</a><span class="archive-list-count">2</span></li></ul>
   </div>
 
 
@@ -602,9 +528,7 @@ X = X.drop([&quot;Time&quot;], axis=1)
   
     <li><a href="/categories/Algorithm/">Algorithm</a><small>1</small></li>
   
-    <li><a href="/categories/Machine-Learning/Algorithm/">Algorithm</a><small>0</small></li>
-  
-    <li><a href="/categories/Coding/">Coding</a><small>15</small></li>
+    <li><a href="/categories/Coding/">Coding</a><small>16</small></li>
   
     <li><a href="/categories/Machine-Learning/">Machine Learning</a><small>4</small></li>
   
@@ -633,13 +557,13 @@ X = X.drop([&quot;Time&quot;], axis=1)
   
     <li><a href="/tags/docker/">docker</a><small>6</small></li>
   
-    <li><a href="/tags/golang/">golang</a><small>5</small></li>
+    <li><a href="/tags/golang/">golang</a><small>6</small></li>
   
     <li><a href="/tags/influxDB/">influxDB</a><small>2</small></li>
   
     <li><a href="/tags/ipmi/">ipmi</a><small>1</small></li>
   
-    <li><a href="/tags/javascript/">javascript</a><small>5</small></li>
+    <li><a href="/tags/javascript/">javascript</a><small>6</small></li>
   
     <li><a href="/tags/python/">python</a><small>9</small></li>
   
